@@ -1,6 +1,18 @@
-​		近日，随着项目的演进，微服务越来越多，在前后分离、后端双节点的部署架构下，每个微服务都运行在一个tomcat当中，单节点的负载能力竟已达到瓶颈。在计算能力如此强大的今天，没有节制地使用虚拟机资源果然还是不行，呵呵。
+---
+title: JVM调优（一）
+date: 2021-09-24 09:23:42
+tags: [ JVM,Tomcat,调优 ] 
+categories: JVM
+comments: true
+index_img: /img/JVM.png
+banner_img: /img/background/vilige.jpg
+---
 
-![image-20210923140312578](D:\文档\markdown\博文\tomcat小调优.img\image-20210923135927456.png)
+
+
+​	  近日，随着项目的演进，微服务越来越多，在前后分离、后端双节点的部署架构下，每个微服务都运行在一个tomcat当中，单节点的负载能力竟已达到瓶颈。在计算能力如此强大的今天，没有节制地使用虚拟机资源果然还是不行，呵呵。
+
+![](image-20210923135927456.png)
 
 
 
@@ -10,7 +22,7 @@
 
 > 虚拟机规格为4U16G x86   linux操作系统
 >
-> 微服务大概10个左右，包括注册中心、网关等，并发量不大。
+> 内网项目，微服务大概10个左右，包括注册中心、网关等，并发量不大。
 >
 > web容器为tomcat
 >
@@ -40,7 +52,7 @@
 
 安装部署项目之后使用free -h和top命令查看CPU和内存的使用情况
 
-![image-20210923140858686](D:\文档\markdown\博文\tomcat小调优.img\image-20210923140858686.png)
+![](image-20210923140858686.png)
 
 1、可以看出，虚拟机16G的内存只剩下可怜197M内存，真是在翻车边缘疯狂试探，这与测试反映的系统偶尔瘫痪的表象也是吻合的。
 
@@ -52,7 +64,7 @@
 
 这里我们先排除内存溢出或内存泄露的问题，当然也不是绝对排除。为什么这么说呢，如果某个微服务有代码存在内存溢出或泄露隐患，不会导致所有微服务内存占用都高，而且类似注册中心这种微服务几乎是零业务代码的。其次，这类问题会在程序运行一段时间过后突然down掉，从项目运行的情况来看，暂时没有发现这种情况。因此，内存溢出或泄露的问题可以放在后面再进一步定位。
 
-通过本人的初步给服务器把脉问诊，原因是过于娇纵后宫，导致后宫争宠，时间被各妃子日程占满，从而导致身体吃不消了。
+通过本人的给服务器把脉问诊，初步分析原因是服务器君过于娇纵后宫，导致后宫争宠，时间被各妃子日程占满，从而导致身体吃不消了。
 
 简单来说就是没有为各Tomcat设置JVM内存参数，各个微服务无节制地使用服务器内存导致的。
 
@@ -70,7 +82,7 @@
 
 我们在Tomcat的bin目录下的catalina.sh启动文件中添加如下内容（windows下请修改catalina.bat）。
 
-![image-20210923161704099](D:\文档\markdown\博文\tomcat小调优.img\image-20210923161704099.png)
+![](image-20210923161704099.png)
 
 ```shell
 export JAVA_OPTS="-Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.management.jmxremote.port=8899 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
@@ -86,25 +98,25 @@ export JAVA_OPTS="-Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.managemen
 
 1、添加远程服务器，Remote右键 Add Remote Host...，填入上面配置的服务器IP
 
-![image-20210923163132389](D:\文档\markdown\博文\tomcat小调优.img\image-20210923163132389.png)
+![](image-20210923163132389.png)
 
 
 
-![image-20210923163347853](D:\文档\markdown\博文\tomcat小调优.img\image-20210923163347853.png)
+![](image-20210923163347853.png)
 
 
 
 2、添加JXM连接
 
-![image-20210923163549140](D:\文档\markdown\博文\tomcat小调优.img\image-20210923163549140.png)
+![](image-20210923163549140.png)
 
 按照下图配置
 
-![image-20210923163638670](D:\文档\markdown\博文\tomcat小调优.img\image-20210923163638670.png)
+![](image-20210923163638670.png)
 
 双击建立好的连接可以实时查看当前程序的运行状况和堆栈信息等
 
-![image-20210923164143750](D:\文档\markdown\博文\tomcat小调优.img\image-20210923164143750.png)
+![](image-20210923164143750.png)
 
 可以看到，我们jvm虚拟机的参数列表并没有内存限制相关参数。
 
@@ -114,11 +126,11 @@ export JAVA_OPTS="-Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.managemen
 export JAVA_OPTS="-Xms512m -Xmx512m -Xss256m -Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.management.jmxremote.port=8899 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
 ```
 
-![image-20210923165424944](D:\文档\markdown\博文\tomcat小调优.img\image-20210923165424944.png)
+![](image-20210923165424944.png)
 
 可以看到我们jvm已经有内存参数了，这时我们再看下这个eureka注册中心进程的内存占用。
 
-![image-20210923165520445](D:\文档\markdown\博文\tomcat小调优.img\image-20210923165520445.png)
+![](image-20210923165520445.png)
 
 已经稳定在518M左右了，为什么是这个数呢，而不是我们设置的512M呢？因为我们的JVM进程除了heap内存，还有一些堆外内存。
 
