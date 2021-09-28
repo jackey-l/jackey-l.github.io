@@ -6,5 +6,5 @@ tags:
 categories: 
 comments: true
 index_img: /img/girl01.jpg
-banner_img: /img/backgroud/vilige.jpg
+banner_img: /img/background/vilige.jpg
 ---
