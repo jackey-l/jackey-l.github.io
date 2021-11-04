@@ -1,8 +1,8 @@
 ---
 title: Spring源码环境搭建
 comments: true
-index_img: /img/spring.jpg
-banner_img: /img/background/vilige.jpg
+index_img: https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/spring.jpg
+banner_img: https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/background/vilige.jpg
 date: 2021-06-28 09:13:05
 updated: 2021-06-28 09:13:05
 tags: [Spring,JAVA]
@@ -25,7 +25,7 @@ categories: JAVA
 
    1. 从Gradle官网下载gradle安装包 网址https://gradle.org/releases/
 
-      ![](70b20ee11a3844aba11f70b4d455e749_539x205.png@900-0-90-f.png)
+      ![](D:\Personal\hexo\jackey-l.github.io\source\_posts\70b20ee11a3844aba11f70b4d455e749_539x205.png@900-0-90-f.png)
 
    2. 解压
 

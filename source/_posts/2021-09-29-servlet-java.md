@@ -1,8 +1,8 @@
 ---
 title: 从Servlet聊聊JAVA
 comments: true
-index_img: /img/geek.jpeg
-banner_img: /img/background/vilige.jpg
+index_img: https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/geek.jpeg
+banner_img: https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/background/vilige.jpg
 date: 2021-09-29 18:09:15
 updated: 2021-09-29 18:09:15
 tags: [JAVA,Servlet,J2EE]

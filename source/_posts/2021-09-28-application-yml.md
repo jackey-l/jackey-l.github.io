@@ -1,8 +1,8 @@
 ---
 title: application.yml配置文件优先级
 comments: true
-index_img: /img/girl01.jpg
-banner_img: /img/background/vilige.jpg
+index_img: https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/girl01.jpg
+banner_img: https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/background/vilige.jpg
 date: 2021-06-20 09:12:32
 updated: 2021-09-28 09:12:32
 tags: [Spring,配置,JAVA]
@@ -74,7 +74,7 @@ spring:
 
 我们使用一个简单的SpringBoot Demo来验证一下
 
-![](image-20210803145617104.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210803145617104.png)
 
 3个配置文件
 

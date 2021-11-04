@@ -4,15 +4,15 @@ date: 2021-09-24 09:23:42
 tags: [ JVM,Tomcat,调优 ] 
 categories: JVM
 comments: true
-index_img: /img/JVM.png
-banner_img: /img/background/vilige.jpg
+index_img: https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/JVM.png
+banner_img: https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/background/vilige.jpg
 ---
 
 
 
 ​	  近日，随着项目的演进，微服务越来越多，在前后分离、后端双节点的部署架构下，每个微服务都运行在一个tomcat当中，单节点的负载能力竟已达到瓶颈。在计算能力如此强大的今天，没有节制地使用虚拟机资源果然还是不行，呵呵。
 
-![](image-20210923135927456.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923135927456.png)
 
 
 
@@ -52,7 +52,7 @@ banner_img: /img/background/vilige.jpg
 
 安装部署项目之后使用free -h和top命令查看CPU和内存的使用情况
 
-![](image-20210923140858686.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923140858686.png)
 
 1、可以看出，虚拟机16G的内存只剩下可怜197M内存，真是在翻车边缘疯狂试探，这与测试反映的系统偶尔瘫痪的表象也是吻合的。
 
@@ -82,7 +82,7 @@ banner_img: /img/background/vilige.jpg
 
 我们在Tomcat的bin目录下的catalina.sh启动文件中添加如下内容（windows下请修改catalina.bat）。
 
-![](image-20210923161704099.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923161704099.png)
 
 ```shell
 export JAVA_OPTS="-Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.management.jmxremote.port=8899 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
@@ -98,25 +98,25 @@ export JAVA_OPTS="-Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.managemen
 
 1、添加远程服务器，Remote右键 Add Remote Host...，填入上面配置的服务器IP
 
-![](image-20210923163132389.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923163132389.png)
 
 
 
-![](image-20210923163347853.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923163347853.png)
 
 
 
 2、添加JXM连接
 
-![](image-20210923163549140.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923163549140.png)
 
 按照下图配置
 
-![](image-20210923163638670.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923163638670.png)
 
 双击建立好的连接可以实时查看当前程序的运行状况和堆栈信息等
 
-![](image-20210923164143750.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923164143750.png)
 
 可以看到，我们jvm虚拟机的参数列表并没有内存限制相关参数。
 
@@ -126,11 +126,11 @@ export JAVA_OPTS="-Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.managemen
 export JAVA_OPTS="-Xms512m -Xmx512m -Xss256m -Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.management.jmxremote.port=8899 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
 ```
 
-![](image-20210923165424944.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923165424944.png)
 
 可以看到我们jvm已经有内存参数了，这时我们再看下这个eureka注册中心进程的内存占用。
 
-![](image-20210923165520445.png)
+![](https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923165520445.png)
 
 已经稳定在518M左右了，为什么是这个数呢，而不是我们设置的512M呢？因为我们的JVM进程除了heap内存，还有一些堆外内存。
 

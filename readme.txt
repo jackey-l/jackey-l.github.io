@@ -5,3 +5,6 @@ hexo 操作命令
 部署：hexo d
 
 git 命令
+git add .
+git commit -m 'add'
+git push
