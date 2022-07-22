@@ -1,0 +1,581 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="123">
+  <meta name="author" content="Vincent Lee">
+  <meta name="keywords" content="">
+  
+  <title>JVM调优（一） - Vincent Lee</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":120,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Vincent Lee</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/background/vilige.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="JVM调优（一）">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-09-24 09:23" pubdate>
+        2021年9月24日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      18
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">JVM调优（一）</h1>
+            
+            <div class="markdown-body">
+              <p>​      近日，随着项目的演进，微服务越来越多，在前后分离、后端双节点的部署架构下，每个微服务都运行在一个tomcat当中，单节点的负载能力竟已达到瓶颈。在计算能力如此强大的今天，没有节制地使用虚拟机资源果然还是不行，呵呵。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923135927456.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><h4 id="上下文"><a href="#上下文" class="headerlink" title="上下文"></a>上下文</h4><blockquote>
+<p>虚拟机规格为4U16G x86   linux操作系统</p>
+<p>内网项目，微服务大概10个左右，包括注册中心、网关等，并发量不大。</p>
+<p>web容器为tomcat</p>
+<p>jdk1.8</p>
+</blockquote>
+<p><strong>首先说说什么是RES和VIRT？</strong></p>
+<blockquote>
+<p>RES：resident memory usage 常驻内存</p>
+<p>（1）进程当前使用的内存大小，但不包括swap out</p>
+<p>（2）包含其他进程的共享</p>
+<p>（3）如果申请100m的内存，实际使用10m，它只增长10m，与VIRT相反</p>
+<p>（4）关于库占用内存的情况，它只统计加载的库文件所占内存大小</p>
+<p>RES = CODE + DATA</p>
+<p>VIRT：virtual memory usage</p>
+<p>（1）进程“需要的”虚拟内存大小，包括进程使用的库、代码、数据等</p>
+<p>（2）假如进程申请100m的内存，但实际只使用了10m，那么它会增长100m，而不是实际的使用量</p>
+<p>VIRT = SWAP + RES</p>
+</blockquote>
+<p>安装部署项目之后使用free -h和top命令查看CPU和内存的使用情况</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923140858686.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>1、可以看出，虚拟机16G的内存只剩下可怜197M内存，真是在翻车边缘疯狂试探，这与测试反映的系统偶尔瘫痪的表象也是吻合的。</p>
+<p>2、单个微服务的RES常驻内存在1.2G~1.6G之间，而在ARM服务器上甚至达到了3G左右，10个微服务基本把16G的内存用差不多了。以当前项目的负载需求来看，并没有大并发的场景，也不存在大数据量的接口，这个负载是偏高的，比如一个10个左右服务的注册中心Eureka，不包含任何业务代码也占用了如上的内存，是不合理的。</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>我们以注册中心Eureka来入手，它没有业务代码，减少变量利于我们快速地定位问题。</p>
+<p>这里我们先排除内存溢出或内存泄露的问题，当然也不是绝对排除。为什么这么说呢，如果某个微服务有代码存在内存溢出或泄露隐患，不会导致所有微服务内存占用都高，而且类似注册中心这种微服务几乎是零业务代码的。其次，这类问题会在程序运行一段时间过后突然down掉，从项目运行的情况来看，暂时没有发现这种情况。因此，内存溢出或泄露的问题可以放在后面再进一步定位。</p>
+<p>通过本人的给服务器把脉问诊，初步分析原因是服务器君过于娇纵后宫，导致后宫争宠，时间被各妃子日程占满，从而导致身体吃不消了。</p>
+<p>简单来说就是没有为各Tomcat设置JVM内存参数，各个微服务无节制地使用服务器内存导致的。</p>
+<p>我们通过几个简单的参数<code>Xms</code>、<code>Xmx</code>、<code>Xss</code>来验证一下。</p>
+<blockquote>
+<p>-Xms 是指程序启动时占用内存大小。一般来讲，大点，程序会启动的快一点，但是也可能会导致机器暂变慢，程序在内存不够时会进行扩展，而扩展也是会影响效率的，可能会导致程序突然卡顿一下，因此许多的项目中这个值一步到位设置和最大值Xmx一样。</p>
+<p>-Xmx 是指程序运行期间最大可占用的内存大小。如果程序运行需要占用更多的内存，超出了这个设置值，就会抛出OutOfMemory异常。</p>
+<p>-Xss 是指设定每个线程的堆栈大小。这个就要依据你的程序，看一个线程大约需要占用多少内存，可能会有多少线程同时运行等。默认JDK1.4中是256K，JDK1.5+中是1M。</p>
+</blockquote>
+<p>由于项目当初是使用的是一个未知的定制版的Tomcat，已经改的面目全非，没有文档支持，花费了很大功夫才找到加JAVA启动参数的地方。不具备参考意义，我们以开源版的Tomcat为例。</p>
+<p>这次 ，我们使用java自带的jvm监控工具jvisualvm来监控jvm的启动参数、内存占用等信息，使用前我们需要给JVM加上启动参数来打开调试接口。</p>
+<p>我们在Tomcat的bin目录下的catalina.sh启动文件中添加如下内容（windows下请修改catalina.bat）。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923161704099.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">export JAVA_OPTS=&quot;-Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.management.jmxremote.port=8899 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false&quot;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>-Djava.rmi.server.hostname：服务器IP，修改为自己的虚拟机的IP即可</p>
+<p>-Dcom.sun.management.jmxremote.port ：开放端口，这里自定义即可，笔者用的是8899，只要端口没有冲突即可。</p>
+<p>-Dcom.sun.management.jmxremote.ssl=false、-Dcom.sun.management.jmxremote.authenticate=false：是否启用SSL安全协议、安全认证，主要是为了安全，这里一般设置为false即可，生产环境中我们一般也不会打开调试端口。</p>
+</blockquote>
+<p>打开jvisualvm工具</p>
+<p>1、添加远程服务器，Remote右键 Add Remote Host…，填入上面配置的服务器IP</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923163132389.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923163347853.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>2、添加JXM连接</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923163549140.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>按照下图配置</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923163638670.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>双击建立好的连接可以实时查看当前程序的运行状况和堆栈信息等</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923164143750.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>可以看到，我们jvm虚拟机的参数列表并没有内存限制相关参数。</p>
+<p>我们为它加上参数再连接试试，将刚才的刚才的JAVA_OPTS参数修改为：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">export JAVA_OPTS=&quot;-Xms512m -Xmx512m -Xss256m -Djava.rmi.server.hostname=xxx.xxx.xxx.xxx -Dcom.sun.management.jmxremote.port=8899 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false&quot;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923165424944.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>可以看到我们jvm已经有内存参数了，这时我们再看下这个eureka注册中心进程的内存占用。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210923165520445.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>已经稳定在518M左右了，为什么是这个数呢，而不是我们设置的512M呢？因为我们的JVM进程除了heap内存，还有一些堆外内存。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我们定位到了tomcat内存高的原因，也找到了解决的方法，但是这个问题我们目前只解决了一半。</p>
+<p>我们仍然需要回答Xms或其他内存参数到底该设置多少才合理，这个数字不能拍脑袋，需要结合具体的业务需求，还需要与我们的测试小哥哥一起压测才能得出结论。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/JVM/">JVM</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/JVM/">JVM</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Tomcat/">Tomcat</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E8%B0%83%E4%BC%98/">调优</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/09/28/ntp/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux NTP时钟同步</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/09/21/%E9%9A%8F%E7%AC%9401/">
+                        <span class="hidden-mobile">但愿人长久，千里共婵娟</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"aABg0z1pmK0PBcdmxgbNq9HH-gzGzoHsz","appKey":"VmLcKlwx0DLrqXB6ubPaCo9B","placeholder":"说点什么","path":"window.location.pathname","avatar":"retro","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":"https://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/","emojiMaps":{"smile":"e3/2018new_weixioa02_org.png","lovely":"09/2018new_keai_org.png"},"enableQQ":true,"requiredFields":[]},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

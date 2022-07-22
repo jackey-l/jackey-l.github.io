@@ -1,0 +1,708 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="123">
+  <meta name="author" content="Vincent Lee">
+  <meta name="keywords" content="">
+  
+  <title>Linux NTP时钟同步 - Vincent Lee</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":120,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Vincent Lee</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/background/vilige.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Linux NTP时钟同步">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-09-28 08:25" pubdate>
+        2021年9月28日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      63
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux NTP时钟同步</h1>
+            
+            <div class="markdown-body">
+              <h2 id="1-什么是NTP-why-we-need-it"><a href="#1-什么是NTP-why-we-need-it" class="headerlink" title="1. 什么是NTP,why we need it?"></a>1. 什么是NTP,why we need it?</h2><p>​        如今我们的软件系统通常部署在计算设备集群中，而非单一的物理设备上。统一、同步的标准时间用于记录各种事件发生时序，如日志的打印时间戳、微服务调用链监控、文件创建和访问时间、E-MAIL时间戳、数据库处理时间等。系统内不同计算设备之间控制、计算、处理、应用等数据或操作都具有时序性，若计算机时间不同步，这些应用或操作或将无法正常进行。</p>
+<p>​        大数据系统是对时间敏感的计算处理系统，时间同步是大数据能够得到正确处理的基础保障，是大数据得以发挥作用的技术支撑。大数据时代，整个处理计算系统内的大数据通信都是通过网络进行。时间同步也是如此，利用大数据的互联网络传送标准时间信息，实现大数据系统内时间同步。</p>
+<p>​        网络时间同步协议(NTP)是时间同步的技术基础。</p>
+<p>​        首先看下官网<a target="_blank" rel="noopener" href="http://www.ntp.org/%E5%AF%B9%E5%AE%83%E7%9A%84%E5%AE%9A%E4%B9%89%E3%80%82">http://www.ntp.org/对它的定义。</a></p>
+<blockquote>
+<p><strong>NTP is a protocol designed to synchronize the clocks of computers over a network.</strong></p>
+<p><strong>NTP 是一种通过网络同步计算机时钟的协议。</strong></p>
+</blockquote>
+<p>​        网站的描述十分简洁。在实际的应用中，NTP分为服务端和客户端，客户端向服务端发起请求索要时间，来校准自己的时间。而一个节点，既可以作为服务端，也可以作为客户端。</p>
+<p>​        然后我们来看下<a target="_blank" rel="noopener" href="http://linux.vbird.org/linux_server/0440ntp.php#server_ntp.conf">《鸟哥的Linux》</a>中对于NTP的介绍。</p>
+<blockquote>
+<p>​         Linux 操作系统的计时方式主要是由1970/01/01 开始计算总秒数，因此，如果你还记得date 这个指令的话， 会发现它有个+%s 的参数，可以取得总秒数，这个就是软件时钟。但，如同前面说的，电脑硬件主要是以BIOS芯片内部的时间为主要的时间依据(硬件时钟)，而偏偏这个时间可能因为BIOS 内部晶片本身的问题，而导致BIOS 时间与标准时间(UTC) 有一点点的差异存在！所以为了避免主机长时间运行下所导致的时间误差，进行时间同步 (synchronize) 的工作就显的很重要了！</p>
+<ul>
+<li>软件时钟：由Linux 系统根据1970/01/01 开始计算的总秒数。</li>
+<li>硬件时钟：主机硬件芯片里面的时钟，例如BIOS 记录的时间。</li>
+</ul>
+<p>那么怎么让时间同步化呢？想一想，如果我们选择几部主要主机(Primary server) 调校时间，让这些 Primary Servers 的时间同步之后，再开放网络服务来让Client 端连线，并且提供给Client 端调整自己的时间，不就可以达到全部的电脑时间同步化的目的了吗！那么什么协议可以达到这样的功能呢？那就是NTP，到底NTP 这个daemon 是如何让Server 与Client 同步他们的时间呢？</p>
+<ol>
+<li>首先，主机当然需要启动这个daemon ，之后，</li>
+<li>Client 会向NTP Server 发送出调校时间的message ，</li>
+<li>然后NTP Server 会送出目前的标准时间给Client ，</li>
+<li>Client 接收了来自Server 的时间后，会据以调整自己的时间，就达成了网络时间校准了！</li>
+</ol>
+<p>在上面的步骤中你有没有想到一件事啊，那就是如果Client到Server的消息传送时间过长了怎么办？ 举例来说，我在台湾以ADSL 的PC 主机，连线到美国的NTP Server 主机进行时间同步化要求，而美国NTP Server 收到我的要求之后，就发送当时的正确时间给我，不过， 由美国将资料传送回我的PC 时，时间可能已经延迟了10 秒钟去了！这样一来，我的PC 校正的时间是10 秒钟前的标准时间喔！此外，如果美国那么NTP 主机有太多的人喜欢上去进行网路校时了，所以 loading (负荷) 太重啦！导致讯息的回传又延迟的更为严重！那怎么办？</p>
+<p>为了这些延迟的问题，有一些program 已经开发了自动计算时间传送过程的误差，以更准确的校准自己的时间！当然啦，在 daemon 的部分，也同时以server/client 及master/slave 的架构来提供使用者进行网路校时的动作！所谓的 master/slave 就有点类似DNS 的系统咯！举例来说，台湾的标准时间主机去国际标准时间的主机校时， 然后各大专院校再到台湾的标准时间校时，然后我们再到各大专院校的标准时间校时！这样一来，那几部国际标准时间主机 (Time server) 的loading 就不至于太大，而我们也可以很快速的达到正确的网路校时的目的呢！</p>
+</blockquote>
+<p>​        NTP服务器阶层的概念</p>
+<blockquote>
+<p>​    如前所述，由于NTP 时间服务器采用类似阶层架构(stratum) 来处理时间的同步化， 所以他使用的是类似一般server/client 的主从架构。网络社会上面有提供一些主要与次要的时间服务器， 这些均属于第一阶及第二阶的时间服务器(stratum-1, stratum-2) ，如下所示：</p>
+<ul>
+<li>主要时间服务器： <a target="_blank" rel="noopener" href="http://support.ntp.org/bin/view/Servers/StratumOneTimeServers">http://support.ntp.org/bin/view/Servers/StratumOneTimeServers</a></li>
+<li>次要时间服务器： <a target="_blank" rel="noopener" href="http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers">http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers</a></li>
+</ul>
+<p>由于这些时间服务器大多在国外，所以我们是否要使用这些服务器来同步化自己的时间呢？其实如果台湾地区已经有标准时间服务器的话，用那部即可，不需要连线到国外啦！浪费带宽与时间啊！而如前面提到的，台湾地区已经有标准的时间服务器了，所以当然我们可以直接选择台湾地区的NTP 主机即可。</p>
+<p>如果你评估一下，确定有架设NTP 的需求时，我们可以直接选择台湾地区的上层NTP 来同步化时间即可。举例来说tock.stdtime.gov.tw 这个国家单位的主机应该是比较适合的。一般来说，我们在进行NTP 主机的设定时，都会先选择多部上层的Time Server 来做为我们这一部NTP Server 的校正之用，选择多部的原因是因为 然后我们的NTP Server 才提供给自己的Client 端更新时间 如此一来，国家单位的tock.stdtime.gov.tw 负载才不会太大，而我们的Client 也可以很快速的达到校时的动作！</p>
+<p><strong>Tips: 举例来说，如果我们的NTP 是向台湾的tock.stdtime.gov.tw 这部stratum-2 的主机要求时间同步化，那我们的主机即为stratum-3 ，如果还有其他的NTP 主机向我们要求时间同步， 那么该部主机则会是stratum-4 啦！就这样啊～ 那最多可以有几个阶层？最多可达15 个阶层喔！</strong>   </p>
+</blockquote>
+<p>​        ntp核心配置与命令文件</p>
+<blockquote>
+<ul>
+<li><strong>/etc/ntp.conf</strong>： NTP 服务器的主要配置文件，也是唯一的一个。</li>
+</ul>
+<p>命令主要有如下几个：</p>
+<ul>
+<li><p><strong>/bin/date</strong>： 用于 Linux 时间 (软件时钟) 的修改与显示的指令。</p>
+</li>
+<li><p><strong>/sbin/hwclock</strong>： 用于 BIOS 时钟 (硬件时钟) 的修改与显示的指令。 这是一个 root 才能执行的指令，因为 Linux 系統上面 BIOS 时间与 Linux 系統时间是分开的，所以使用 date 这个指令调整了时间之后，还需要使用 hwclock 才能將修改过后的时间写入 BIOS 当中！</p>
+</li>
+<li><p><strong>/usr/sbin/ntpd</strong>： 主要提供 NTP 服务的命令！配置文件为 /etc/ntp.conf</p>
+</li>
+<li><p><strong>/usr/sbin/ntpdate</strong>： 用于client端的时间校正，如果你沒有要启用 NTP服务 而仅想要使用 NTP Client 功能的话，那么只用这个指令就可以了！</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="2-设置时区"><a href="#2-设置时区" class="headerlink" title="2 . 设置时区"></a>2 . 设置时区</h2><p>   计算机中的OS时区应与计算设备所处地理时区一致，否则将出现时差。</p>
+<p>   CentOS和Ubuntu的时区文件是/etc/localtime，但是在CentOS7以后localtime以及变成了一个链接文件,如果采用直接cp的方法修改系统时区，那么就会把它所链接的文件修改掉，例如把美国的时区文件内容修改成了上海的时区内容，有可能会导致有些编程语言或程序在读取系统时区的时候发生错误，因此正确的修改方法是：</p>
+<h3 id="CentOS6、Ubuntu16"><a href="#CentOS6、Ubuntu16" class="headerlink" title="CentOS6、Ubuntu16"></a><strong>CentOS6、Ubuntu16</strong></h3><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gradle"># cp <span class="hljs-regexp">/usr/</span>share<span class="hljs-regexp">/zoneinfo/</span>Asia<span class="hljs-regexp">/Shanghai /</span>etc/localtime<br></code></pre></td></tr></table></figure>
+
+<h3 id="CentOS7、RHEL7、Scientific-Linux-7、Oracle-Linux-7"><a href="#CentOS7、RHEL7、Scientific-Linux-7、Oracle-Linux-7" class="headerlink" title="CentOS7、RHEL7、Scientific Linux 7、Oracle Linux 7"></a><strong>CentOS7、RHEL7、Scientific Linux 7、Oracle Linux 7</strong></h3><p>最好的方法是使用timedatectl命令</p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@test</span><span class="hljs-number">-127</span> ~]<span class="hljs-meta"># timedatectl list-timezones |grep Shanghai    #查找中国时区的完整名称</span><br>Asia/Shanghai<br>[root<span class="hljs-symbol">@test</span><span class="hljs-number">-127</span> ~]<span class="hljs-meta"># timedatectl set-timezone Asia/Shanghai    #其他时区以此类推</span><br></code></pre></td></tr></table></figure>
+
+<p>或者直接手动创建软链接</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gradle">[root@test-<span class="hljs-number">127</span> ~]# ln -sf <span class="hljs-regexp">/usr/</span>share<span class="hljs-regexp">/zoneinfo/</span>Asia<span class="hljs-regexp">/Shanghai /</span>etc/localtime<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-NTP服务器的安装与设定"><a href="#3-NTP服务器的安装与设定" class="headerlink" title="3. NTP服务器的安装与设定"></a>3. NTP服务器的安装与设定</h2><p>​    <strong>在这里，我们采用二级同步机制，master 作为主节点，负责与外部系统同步时间，并把自己的时间同步给集群内其他client节点，所有client节点均向master 同步时间</strong>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/test1.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p><strong>以下操作假设我们有4台Linux虚拟机需要做时间同步，192.168.100.100为外部的时钟源。</strong></p>
+<blockquote>
+<p>192.168.60.101 master1 </p>
+<p>192.168.60.102 client1 </p>
+<p>192.168.60.103 client2</p>
+<p>192.168.60.104 client3</p>
+<p>192.168.1000.100 外部时钟源</p>
+</blockquote>
+<h3 id="2-1-安装NTP"><a href="#2-1-安装NTP" class="headerlink" title="2.1  安装NTP"></a>2.1  安装NTP</h3><h4 id="2-1-1-卸载旧ntp服务"><a href="#2-1-1-卸载旧ntp服务" class="headerlink" title="2.1.1 卸载旧ntp服务"></a>2.1.1 卸载旧ntp服务</h4><p>确认是否已安装ntp、ntpupdate</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 ~]# rpm –qa | grep ntp<br></code></pre></td></tr></table></figure>
+
+<p>若只有ntpdate而未见ntp，则需删除原有ntpdate。如：</p>
+<p>ntpdate-4.2.6p5-22.el7_0.x86_64</p>
+<p>fontpackages-filesystem-1.44-8.el7.noarch</p>
+<p>python-ntplib-0.3.2-1.el7.noarch</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 ~]# yum –y remove ntpdate-4.2.6p5-22.el7.x86_64<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-1-2-安装ntp"><a href="#2-1-2-安装ntp" class="headerlink" title="2.1.2    安装ntp"></a>2.1.2    安装ntp</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 ~]# yum –y install ntp<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-配置ntp-conf文件"><a href="#2-2-配置ntp-conf文件" class="headerlink" title="2.2    配置ntp.conf文件"></a>2.2    配置ntp.conf文件</h3><h4 id="2-2-1-ntp-conf文件解析"><a href="#2-2-1-ntp-conf文件解析" class="headerlink" title="2.2.1 ntp.conf文件解析"></a>2.2.1 ntp.conf文件解析</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> For more information about this file, see the man pages</span><br><span class="hljs-meta">#</span><span class="bash"> ntp.conf(5), ntp_acc(5), ntp_auth(5), ntp_clock(5), ntp_misc(5), ntp_mon(5).</span><br><span class="hljs-meta">#</span><span class="bash"> 时间偏移量 格式：driftfile [可以被ntpd 写入的目录与档案] 详细概念在附录进行介绍，下同</span><br>driftfile /var/lib/ntp/drift<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> Permit time synchronization with our time <span class="hljs-built_in">source</span>, but <span class="hljs-keyword">do</span> not</span><br><span class="hljs-meta">#</span><span class="bash"> permit the <span class="hljs-built_in">source</span> to query or modify the service on this system.</span><br>restrict default nomodify notrap nopeer noquery<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> Permit all access over the loopback interface.  This could</span><br><span class="hljs-meta">#</span><span class="bash"> be tightened as well, but to <span class="hljs-keyword">do</span> so would effect some of</span><br><span class="hljs-meta">#</span><span class="bash"> the administrative <span class="hljs-built_in">functions</span>.</span><br>restrict 192.168.60.101 nomodify notrap nopeer noquery<br>restrict 127.0.0.1<br>restrict ::1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> Hosts on <span class="hljs-built_in">local</span> network are less restricted.</span><br><span class="hljs-meta">#</span><span class="bash"> 权限管理 格式：restrict [IP] mask [netmask_IP] [parameter]</span> <br><span class="hljs-meta">#</span><span class="bash"> 这里192.168.60.0为集群所在网段的网关（Gateway），意思代表的192.168.60.0~255网段的机器都允许与本机的ntp时间同步。255.255.255.0为子网掩码（Genmask）。</span><br>reastrict 192.168.60.0 mask 255.255.255.0 nomodify notrap<br><span class="hljs-meta">#</span><span class="bash"> Use public servers from the pool.ntp.org project.</span><br><span class="hljs-meta">#</span><span class="bash"> Please consider joining the pool (http://www.pool.ntp.org/join.html).</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 设定上层NTP服务器，请先将其余的server如 [0|1|2].centos.pool.ntp.org 注释掉</span><br><span class="hljs-meta">#</span><span class="bash"> 格式：server [IP or hostname] [prefer] prefer表示优先使用，iburst表示请求频率加强：</span><br>server 220.130.158.71 prefer  &lt;==以这部主机为最优先的server<br>server 59.124.196.83<br>server 59.124.196.84<br><span class="hljs-meta">#</span><span class="bash"> 最大阶层数，局域网项目一般设置为10</span><br>fudge 192.168.60.128 stratum 10<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">broadcast 192.168.1.255 autokey        <span class="hljs-comment"># broadcast server</span></span><br><span class="hljs-meta">#</span><span class="bash">broadcastclient                        <span class="hljs-comment"># broadcast client</span></span><br><span class="hljs-meta">#</span><span class="bash">broadcast 224.0.1.1 autokey            <span class="hljs-comment"># multicast server</span></span><br><span class="hljs-meta">#</span><span class="bash">multicastclient 224.0.1.1              <span class="hljs-comment"># multicast client</span></span><br><span class="hljs-meta">#</span><span class="bash">manycastserver 239.255.254.254         <span class="hljs-comment"># manycast server</span></span><br><span class="hljs-meta">#</span><span class="bash">manycastclient 239.255.254.254 autokey <span class="hljs-comment"># manycast client</span></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> Enable public key cryptography.</span><br><span class="hljs-meta">#</span><span class="bash">crypto</span><br><br>includefile /etc/ntp/crypto/pw<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> Key file containing the keys and key identifiers used when operating</span><br><span class="hljs-meta">#</span><span class="bash"> with symmetric key cryptography.</span><br>keys /etc/ntp/keys<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> Specify the key identifiers <span class="hljs-built_in">which</span> are trusted.</span><br><span class="hljs-meta">#</span><span class="bash">trustedkey 4 8 42</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> Specify the key identifier to use with the ntpdc utility.</span><br><span class="hljs-meta">#</span><span class="bash">requestkey 8</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> Specify the key identifier to use with the ntpq utility.</span><br><span class="hljs-meta">#</span><span class="bash">controlkey 8</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> Enable writing of statistics records.</span><br><span class="hljs-meta">#</span><span class="bash">statistics clockstats cryptostats loopstats peerstats</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> Disable the monitoring facility to prevent amplification attacks using ntpdc</span><br><span class="hljs-meta">#</span><span class="bash"> monlist <span class="hljs-built_in">command</span> when default restrict does not include the noquery flag. See</span><br><span class="hljs-meta">#</span><span class="bash"> CVE-2013-5211 <span class="hljs-keyword">for</span> more details.</span><br><span class="hljs-meta">#</span><span class="bash"> Note: Monitoring will not be disabled with the limited restriction flag.</span><br>disable monitor<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-2-2-修改所有节点的-etc-ntp-conf"><a href="#2-2-2-修改所有节点的-etc-ntp-conf" class="headerlink" title="2.2.2    修改所有节点的/etc/ntp.conf"></a>2.2.2    修改所有节点的/etc/ntp.conf</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">restrict 192.168.60.101 nomodify notrap nopeer noquery          //当前节点IP地址<br>...<br>restrict 192.168.60.0 mask 255.255.255.0 nomodify notrap  //集群所在网段的网关（Gateway），子网掩码（Genmask）<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-2-3-选择一个主节点，修改其-etc-ntp-conf"><a href="#2-2-3-选择一个主节点，修改其-etc-ntp-conf" class="headerlink" title="2.2.3    选择一个主节点，修改其/etc/ntp.conf"></a>2.2.3    选择一个主节点，修改其/etc/ntp.conf</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 外部时钟源</span><br>server 192.168.100.100 iburst prefer<br><span class="hljs-meta">#</span><span class="bash">兜底时间服务器，当外部时钟源不可用时，就是以本机时间作为集群机器的统一时间。</span><br>server 127.0.0.1 iburst<br>fudge 127.0.0.1 stratum 10<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-2-4-选择从节点，修改-etc-ntp-conf"><a href="#2-2-4-选择从节点，修改-etc-ntp-conf" class="headerlink" title="2.2.4    选择从节点，修改/etc/ntp.conf"></a>2.2.4    选择从节点，修改/etc/ntp.conf</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">在server部分添加如下语句，注释其余server，将server指向主节点。</span><br>server 192.168.60.101<br>fudge 192.168.60.101 stratum 10<br><span class="hljs-meta">#</span><span class="bash"> 192.168.60.102 同上</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-同步硬件时钟"><a href="#2-3-同步硬件时钟" class="headerlink" title="2.3 同步硬件时钟"></a>2.3 同步硬件时钟</h3><p>ntp服务，默认只会同步系统时间，如果系统软硬件时间不一致，那么系统重启过后时间又会恢复成硬件时间。</p>
+<p>如果想要让ntp同时同步硬件时间，可以设置/etc/sysconfig/ntpd文件，</p>
+<p>在/etc/sysconfig/ntpd文件中，添加<code>SYNC_HWCLOCK=yes</code>，就可以让硬件时间与系统时间一起同步。</p>
+<p>允许BIOS与系统时间同步，也可以通过hwclock -w 命令。</p>
+<h3 id="2-4-启动ntp服务、查看状态"><a href="#2-4-启动ntp服务、查看状态" class="headerlink" title="2.4  启动ntp服务、查看状态"></a>2.4  启动ntp服务、查看状态</h3><h4 id="2-3-1-启动ntp服务"><a href="#2-3-1-启动ntp服务" class="headerlink" title="2.3.1    启动ntp服务"></a>2.3.1    启动ntp服务</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 ~]# service ntpd start<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-3-2-添加开机自启动"><a href="#2-3-2-添加开机自启动" class="headerlink" title="2.3.2    添加开机自启动"></a>2.3.2    添加开机自启动</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 ~]# chkconfig ntpd on<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-3-3-查看ntp服务器与上层ntp的状态"><a href="#2-3-3-查看ntp服务器与上层ntp的状态" class="headerlink" title="2.3.3    查看ntp服务器与上层ntp的状态"></a>2.3.3    查看ntp服务器与上层ntp的状态</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 ~]# ntpstat<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/915691-20171013002936340-1631273268.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>查看ntp状态时，可能会出现如下所示情况</p>
+<p>① unsynchronised time server re-starting polling server every 8 s</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/915691-20171013131031496-1095710777.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>② unsynchronised polling server every 8 s</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/915691-20171013131052840-421840461.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>这种情况属于正常，ntp服务器配置完毕后，需要等待5-10分钟才能与/etc/ntp.conf中配置的标准时间进行同步。</p>
+<p>等一段时间之后，再次使用ntpstat命令查看状态，就会变成如下正常结果：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/915691-20171013131330184-1857767541.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>查<strong>看ntp服务器有无和上层ntp连通</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 ~]# ntpq -p<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/915691-20171013010729637-1391262052.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>remote：本机和上层ntp的ip或主机名</p>
+<ul>
+<li>​    “*”表示已同步    </li>
+<li>​    “+”表示优先同步</li>
+</ul>
+<p>refid：参考上一层ntp主机地址</p>
+<p>st：stratum阶层</p>
+<p>when：多少秒前曾经同步过时间</p>
+<p>poll：下次更新在多少秒后</p>
+<p>reach：已经向上层ntp服务器要求更新的次数</p>
+<p>delay：网络延迟</p>
+<p>offset：时间补偿</p>
+<p>jitter：系统时间与bios时间差  </p>
+<h2 id="4-附录"><a href="#4-附录" class="headerlink" title="4. 附录"></a>4. 附录</h2><h3 id="etc-ntp-conf-其他配置内容详解"><a href="#etc-ntp-conf-其他配置内容详解" class="headerlink" title="===/etc/ntp.conf  其他配置内容详解==="></a><strong>===/etc/ntp.conf  其他配置内容详解===</strong></h3><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># 1. 先处理权限方面的问题，包括放行上层服务器以及开放局域网用户来源：</span><br><span class="hljs-attribute">restrict</span> default kod nomodify notrap nopeer noquery     &lt;==拒绝 IPv<span class="hljs-number">4</span> 的用户<br><span class="hljs-attribute">restrict</span> -<span class="hljs-number">6</span> default kod nomodify notrap nopeer noquery  &lt;==拒绝 IPv<span class="hljs-number">6</span> 的用户<br><span class="hljs-attribute">restrict</span> <span class="hljs-number">220.130.158.71</span>   &lt;==放行 tock.stdtime.gov.tw 进入本 NTP 的服务器<br><span class="hljs-attribute">restrict</span> <span class="hljs-number">59.124.196.83</span>    &lt;==放行 tick.stdtime.gov.tw 进入本 NTP 的服务器<br><span class="hljs-attribute">restrict</span> <span class="hljs-number">59.124.196.84</span>    &lt;==放行 time.stdtime.gov.tw 进入本 NTP 的服务器<br><span class="hljs-attribute">restrict</span> <span class="hljs-number">127.0.0.1</span>        &lt;==底下两个是默认值，放行本机来源<br><span class="hljs-attribute">restrict</span> -<span class="hljs-number">6</span> ::<span class="hljs-number">1</span><br><span class="hljs-attribute">restrict</span> <span class="hljs-number">192.168.100.0</span> mask <span class="hljs-number">255.255.255.0</span> nomodify &lt;==放行局域网用户来源，或者列出单独IP<br><br><span class="hljs-comment"># 2.预设时间差异分析档案与暂不用到的 keys 等，不需要更动它：</span><br><span class="hljs-attribute">driftfile</span> /var/lib/ntp/drift<br><span class="hljs-attribute">keys</span>      /etc/ntp/keys<br></code></pre></td></tr></table></figure>
+
+<h3 id="restrict选项格式"><a href="#restrict选项格式" class="headerlink" title="===restrict选项格式==="></a>===restrict选项格式===</h3><p><strong>restrict [ 客户端IP ]  mask  [ IP掩码 ]  [参数</strong>]</p>
+<p>“客户端IP” 和 “IP掩码” 指定了对网络中哪些范围的计算机进行控制，如果使用default关键字，则表示对所有的计算机进行控制，参数指定了具体的限制内容，常见的参数如下：</p>
+<p>◆ ignore：拒绝连接到NTP服务器</p>
+<p>◆ nomodiy： 客户端不能更改服务端的时间参数，但是客户端可以通过服务端进行网络校时。</p>
+<p>◆ noquery： 不提供客户端的时间查询</p>
+<p>◆ notrap： 不提供trap远程登录功能，trap服务是一种远程时间日志服务。</p>
+<p>◆ notrust： 客户端除非通过认证，否则该客户端来源将被视为不信任子网 。</p>
+<p>◆ nopeer： 提供时间服务，但不作为对等体。</p>
+<p>◆ kod： 向不安全的访问者发送Kiss-Of-Death报文。</p>
+<h3 id="server选项格式"><a href="#server选项格式" class="headerlink" title="===server选项格式==="></a>===server选项格式===</h3><p><strong>server host  [ key n ] [ version n ] [ prefer ] [ mode n ] [ minpoll n ] [ maxpoll n ] [ iburst ]</strong></p>
+<p>其中host是上层NTP服务器的IP地址或域名，随后所跟的参数解释如下所示：</p>
+<p>◆ key： 表示所有发往服务器的报文包含有秘钥加密的认证信息，n是32位的整数，表示秘钥号。</p>
+<p>◆ version： 表示发往上层服务器的报文使用的版本号，n默认是3，可以是1或者2。</p>
+<p>◆ prefer： 如果有多个server选项，具有该参数的服务器有限使用。</p>
+<p>◆ mode： 指定数据报文mode字段的值。</p>
+<p>◆ minpoll： 指定与查询该服务器的最小时间间隔为2的n次方秒，n默认为6，范围为4-14。</p>
+<p>◆ maxpoll： 指定与查询该服务器的最大时间间隔为2的n次方秒，n默认为10，范围为4-14。</p>
+<p>◆ iburst： 当初始同步请求时，采用突发方式接连发送8个报文，时间间隔为2秒。</p>
+<h3 id="查看网关方法"><a href="#查看网关方法" class="headerlink" title="===查看网关方法==="></a>===查看网关方法===</h3><p>【命令1】route -n </p>
+<p>【命令2】ip route show </p>
+<p>【命令3】netstat -r</p>
+<h3 id="层次（stratum）"><a href="#层次（stratum）" class="headerlink" title="===层次（stratum）==="></a>===层次（stratum）===</h3><p>stratum根据上层server的层次而设定（+1）。</p>
+<p>对于提供network time service provider的主机来说，stratum的设定要尽可能准确。</p>
+<p>而作为局域网的time service provider，通常将stratum设置为10</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/915691-20171013005125324-1966406641.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>0层的服务器采用的是原子钟、GPS钟等物理设备，stratum 1与stratum 0 是直接相连的，</p>
+<p>往后的stratum与上一层stratum通过网络相连，同一层的server也可以交互。</p>
+<p>ntpd对下层client来说是service server，对于上层server来说它是client。</p>
+<p>ntpd根据配置文件的参数决定是要为其他服务器提供时钟服务或者是从其他服务器同步时钟。所有的配置都在/etc/ntp.conf文件中。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/20160917151428497.PNG" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<h3 id="注意防火墙屏蔽ntp端口"><a href="#注意防火墙屏蔽ntp端口" class="headerlink" title="===注意防火墙屏蔽ntp端口==="></a>===注意防火墙屏蔽ntp端口===</h3><p>ntp服务器默认端口是123，如果防火墙是开启状态，在一些操作可能会出现错误，所以要记住关闭防火墙。</p>
+<h3 id="ntpd、ntpdate的区别"><a href="#ntpd、ntpdate的区别" class="headerlink" title="===ntpd、ntpdate的区别==="></a>===ntpd、ntpdate的区别===</h3><p>使用之前得弄清楚一个问题，ntpd与ntpdate在更新时间时有什么区别。</p>
+<p>ntpd不仅仅是时间同步服务器，它还可以做客户端与标准时间服务器进行同步时间，而且是平滑同步，</p>
+<p>并非ntpdate立即同步，在生产环境中慎用ntpdate，也正如此两者不可同时运行。</p>
+<p>时钟的跃变，对于某些程序会导致很严重的问题。</p>
+<p>许多应用程序依赖连续的时钟——毕竟，这是一项常见的假定，即，取得的时间是线性的，</p>
+<p>一些操作，例如数据库事务，通常会地依赖这样的事实：时间不会往回跳跃。</p>
+<p>不幸的是，ntpdate调整时间的方式就是我们所说的”跃变“：在获得一个时间之后，ntpdate使用settimeofday(2)设置系统时间，</p>
+<p>这有几个非常明显的问题：</p>
+<p>【一】这样做不安全。</p>
+<p>ntpdate的设置依赖于ntp服务器的安全性，攻击者可以利用一些软件设计上的缺陷，拿下ntp服务器并令与其同步的服务器执行某些消耗性的任务。</p>
+<p>由于ntpdate采用的方式是跳变，跟随它的服务器无法知道是否发生了异常（时间不一样的时候，唯一的办法是以服务器为准）。</p>
+<p>【二】这样做不精确。</p>
+<p>一旦ntp服务器宕机，跟随它的服务器也就会无法同步时间。</p>
+<p>与此不同，ntpd不仅能够校准计算机的时间，而且能够校准计算机的时钟。</p>
+<p>【三】这样做不够优雅。</p>
+<p>由于是跳变，而不是使时间变快或变慢，依赖时序的程序会出错</p>
+<p>（例如，如果ntpdate发现你的时间快了，则可能会经历两个相同的时刻，对某些应用而言，这是致命的）。</p>
+<p>因而，唯一一个可以令时间发生跳变的点，是计算机刚刚启动，但还没有启动很多服务的那个时候。</p>
+<p>其余的时候，理想的做法是使用ntpd来校准时钟，而不是调整计算机时钟上的时间。</p>
+<p>NTPD在和时间服务器的同步过程中，会把BIOS计时器的振荡频率偏差——或者说Local Clock的自然漂移(drift)——记录下来。</p>
+<p>这样即使网络有问题，本机仍然能维持一个相当精确的走时。</p>
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="==其他问题=="></a>==其他问题==</h3><p>配置了ntp服务之后，发现时间仍然无法同步</p>
+<p>通过命令timedatectl查看，之后，发现ntp服务没有生效（NTP enabled: no），如下图所示</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/915691-20200929232515753-1829091402.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>执行命令timedatectl set-ntp yes之后，问题得以解决。</p>
+<blockquote>
+<p>参考资料</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/quchunhui/p/7658853.html">https://www.cnblogs.com/quchunhui/p/7658853.html</a></p>
+<p>鸟哥的Linux私房菜 <a target="_blank" rel="noopener" href="http://linux.vbird.org/linux_server/0440ntp.php#server_ntp.conf">http://linux.vbird.org/linux_server/0440ntp.php#server_ntp.conf</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yjt1993/p/11177554.html">https://www.cnblogs.com/yjt1993/p/11177554.html</a></p>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Linux/">Linux</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/NTP/">NTP</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Linux/">Linux</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/09/29/servlet-java/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">从Servlet聊聊JAVA</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/09/24/JVM%E8%B0%83%E4%BC%98-%E4%B8%80/">
+                        <span class="hidden-mobile">JVM调优（一）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"aABg0z1pmK0PBcdmxgbNq9HH-gzGzoHsz","appKey":"VmLcKlwx0DLrqXB6ubPaCo9B","placeholder":"说点什么","path":"window.location.pathname","avatar":"retro","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":"https://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/","emojiMaps":{"smile":"e3/2018new_weixioa02_org.png","lovely":"09/2018new_keai_org.png"},"enableQQ":true,"requiredFields":[]},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

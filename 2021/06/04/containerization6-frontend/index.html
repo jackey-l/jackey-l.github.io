@@ -1,0 +1,607 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="123">
+  <meta name="author" content="Vincent Lee">
+  <meta name="keywords" content="">
+  
+  <title>(六)容器化实战--前端Nginx改造 - Vincent Lee</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":120,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Vincent Lee</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/background/vilige.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="(六)容器化实战--前端Nginx改造">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-06-04 16:22" pubdate>
+        2021年6月4日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      29
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">(六)容器化实战--前端Nginx改造</h1>
+            
+            <div class="markdown-body">
+              <h3 id="本章，我们来进行前端服务的容器化改造"><a href="#本章，我们来进行前端服务的容器化改造" class="headerlink" title="本章，我们来进行前端服务的容器化改造"></a>本章，我们来进行前端服务的容器化改造</h3><p>首先来看一下我们原来的组网拓扑：</p>
+<hr>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20211104171031523.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<hr>
+<p>可以发现，我们的Nginx目前承担的职责主要有：</p>
+<ul>
+<li><p>动静分离，响应静态资源请求，动态资源请求反向代理至CORE进一步路由。（何为动静分离请浏览文末）</p>
+</li>
+<li><p>https拦截层</p>
+</li>
+<li><p>后端网关服务的负载均衡器</p>
+</li>
+<li><p>网关熔断器</p>
+</li>
+</ul>
+<p>我们这里镜像采用centos+Nginx基础层、frontend应用层的分层设计，目的是一方面是可以解耦、一方面也可以大大提升镜像的构建速度、应用的发布速度。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/32fcbc3ed3d559bdf392e2a2152ce451_392x245.png@900-0-90-f.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p><strong>由于原Nginx在部署时配置了大量的配置，在改造过程中，我们需要把我们原来的运行时环境变量，完整、准确地通过shell脚本写入到我们的镜像当中。这个过程需要十分耐心，任何一个步骤的遗漏或者出错，都会导致镜像运行失败。</strong></p>
+<p>但即便如此，我们还是遇到了不少问题</p>
+<h3 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h3><ol>
+<li><p>在之前的基础镜像中没有创建安全用户<code>maint</code>与引入安全秘钥文件，而我们Nginx启用了Https，启动需要对应的安全证书，无法找到安装证书导致Nginx启动失败</p>
+</li>
+<li><p>Nginx启动脚本中有sudo命令，执行sudo命令默认需要输入密码，会导致启动脚本执行失败。</p>
+</li>
+<li><p>安全送检反馈要求我们的Nginx宿主机只暴露必要Nginx端口，例如80与443，未用到端口不开放，防止绕过Nginx直接访问后端以及其他的。</p>
+<p>目前采用iptables配置来解决此问题，需要适配镜像OS层环境。</p>
+</li>
+<li><p>原Nginx服务启动的方式为执行<code>operat_nginx.sh</code>，这个线程是后台运行的，下一步我们将开发前端镜像的Kubernates资源文件，而POD需要线程以前台运行的方式才能对容器的健康状态进行监控。</p>
+</li>
+<li><p>Nginx的负载均衡设置中，原先的后端IP是写死的，现在我们的后端容器的IP是不固定的，如何路由。</p>
+</li>
+</ol>
+<p>那么让我们来逐个攻破把，已经走到这里了，没有什么可以难倒我们的，不是吗。</p>
+<h3 id="问题1"><a href="#问题1" class="headerlink" title="问题1"></a>问题1</h3><h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><p>构建镜像当中，nginx的配置文件nginx.conf采用了先拷贝模板文件，再使用sed命令对变量进行修改的方式。</p>
+<p>仔细观察后发现，在https的相关配置当中，有一个名为security的目录，在这个目录下，存放着安全相关的正式与key,而在data01目录下，我们并没有这个文件夹与证书文件，所以会导致nginx启动失败。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"> ....<br><span class="hljs-meta"> #</span><span class="bash"> https server  443</span><br>    server &#123;<br>        access_log  /var/log/nginx/log/host.access.log  main;<br>        listen 127.0.0.0:443 ssl backlog=10000;<br>        server_name localhost;<br><br>        # https server<br>        ssl_certificate_key_password    &quot;0000000100000001CF63A8E8E06D0FE814A7F33FD704F8478B5495FFDE40F4CD408842732CADCC9164D65A77CE2B967A4EE3D01404A8951D&quot; /data01/security/root.key /data01/security/common_shared.key;<br>        ssl_certificate           /etc/nginx/conf/nginx.crt;<br>        ssl_certificate_key       /etc/nginx/conf/nginx.key;<br>        ssl_protocols TLSv1.2 TLSv1.3;<br>        ssl_session_cache shared:SSL:10m;<br>...<br></code></pre></td></tr></table></figure>
+
+<p>我们需要准备这些文件。</p>
+<hr>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/5447b32117321407a7b64d18ce62a028_402x388.png@900-0-90-f.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>经过查找，我们发现原部署脚本目录当有现有一个名为<code>install_projectName_maint.sh</code>的脚本，它创建了maint这个用户，并且将原码仓当中的一个security的目录拷贝到了虚拟机上，这个步骤应该就是我们想要的了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">!/bin/bash</span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment">#####################部署脚本用到的配置#########################################</span></span><br>SCRIPT_NAME=&quot;install_shuxiaoer_maint.sh&quot;<br>CUR_DIR=$(pwd)<br>FILE_LOG=&quot;$&#123;CUR_DIR&#125;/install_`date +%Y-%m-%d`.log&quot; # 日志文件<br>CONF_PATH=$&#123;CUR_DIR&#125;/../config<br><br>cdir=$(cd `dirname $0`; pwd)<br>. $&#123;cdir&#125;/comm_lib<br><br>install_shuxiaoer_maint()<br>&#123;<br>    LOG &quot;INFO&quot; &quot;begin install maint service ...&quot;<br><br>    maint_path=$&#123;CUR_DIR&#125;/../security<br>    if [[ ! -d $&#123;maint_path&#125; ]];then<br>        LOG &quot;ERROR&quot; &quot;[ the $&#123;maint_path&#125; is not exit,pls check~]&quot;<br>        return 1<br>    fi<br><br>    sudo cp -r $&#123;maint_path&#125;/*  $&#123;MAINT_USER_HOME&#125;<br>    if [[ $? -ne 0 ]];then<br>        LOG &quot;ERROR&quot; &quot;[ copy $&#123;maint_path&#125; to $&#123;MAINT_USER_HOME&#125; ] failed&quot;<br>        return 1<br>    fi<br><br>    sudo chmod -R 750 $&#123;MAINT_USER_HOME&#125;<br>    sudo chown -R $&#123;MAINT_USER&#125;:$&#123;MAINT_USER_GROUP_NAME&#125; $&#123;MAINT_USER_HOME&#125;<br>&#125;<br><br>main()<br>&#123;<br>    echo &quot;=======================================================================&quot;<br>    LOG &quot;INFO&quot; &quot;------ begin install shuxiaoer maint root -----&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">	#</span><span class="bash">判断用户是否存在</span><br>    id $&#123;MAINT_USER&#125; &gt; /dev/null 2&gt;&amp;1<br>    if [[ $? -ne 0 ]];then<br>    	#用户不存在，需要创建用户<br>      create_user &quot;maint&quot; $&#123;MAINT_USER&#125; $&#123;MAINT_USER_GROUP_NAME&#125; $&#123;MAINT_USER_HOME&#125; || return 1<br>    fi<br><br><br>    install_shuxiaoer_maint  || return 1<br><br>    LOG &quot;INFO&quot; &quot;------ end install shuxiaoer maint root -----&quot;<br>    echo &quot;=======================================================================&quot;<br>&#125;<br>main &quot;$@&quot;<br></code></pre></td></tr></table></figure>
+
+<h4 id="开发"><a href="#开发" class="headerlink" title="开发"></a>开发</h4><p>由于其他微服务可能也使用到了这个安全框架相关的内容，我们将这部分代码写入我们的centos基础镜像的构建脚本当中，并重新构建所有应用的基础OS层。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/9c0c0e4f6c1d1b886842e91b50463867_1187x570.png@900-0-90-f.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>新的centos基础镜像我们命名为<code>centos_base:1.0.0</code>,用来替代我们原来的基础镜像层<code>centos:7</code>记得修改其他的微服务Dockfile中的FROM 值再进行构建。</p>
+<h4 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h4><p>构建之后，进入centos_base镜像内部，发现我们需要的目录、用户、安全文件都已经准备好了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@723d1d9b48db /]# cd data01/<br>[root@723d1d9b48db data01]# ll<br>total 0<br>drwxr-x---. 6 maint    shuxiaoer 148 Aug 14 02:15 security<br>drwxr-x---. 1 frontend shuxiaoer  90 Aug 14 06:52 shuxiaoer-frontend<br>[root@723d1d9b48db data01]# cd security/<br>[root@723d1d9b48db security]# ll<br>total 8<br>-rwxr-x---. 1 maint shuxiaoer 1024 Aug 14 02:15 common_shared.key<br>drwxr-x---. 3 maint shuxiaoer   20 Aug 14 02:15 etc<br>drwxr-x---. 2 maint shuxiaoer   36 Aug 14 02:15 logs<br>-rwxr-x---. 1 maint shuxiaoer 1024 Aug 14 02:15 root.key<br>drwxr-x---. 3 maint shuxiaoer   54 Aug 14 02:15 scc<br>drwxr-x---. 6 maint shuxiaoer   54 Aug 14 02:15 sec<br></code></pre></td></tr></table></figure>
+
+<h3 id="问题2"><a href="#问题2" class="headerlink" title="问题2"></a>问题2</h3><p>在linux的系统当中，非root用户执行sudo命令，需要输入密码，这个过程会导致我们的自动脚本执行失败，我们需要跳过此步骤。</p>
+<p>sudo的配置在<code>/etc/sudoers</code>这个文件中</p>
+<p>其中</p>
+<p>如将　%admin ALL=(ALL) ALL　修改为　%admin ALL=(ALL) NOPASSWD: ALL</p>
+<p>意思是属于admin组的用户可以不需要输入密码执行sudo</p>
+<p>如果去除%，则仅仅表示admin这个用户不需要输入密码</p>
+<p> 为某个用户设置可设置为</p>
+<p>username ALL=(ALL) NOPASSWD: ALL</p>
+<p>我们为projectName组设置免密。</p>
+<p>在nginx基础镜像构建脚本中添加</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/308c05f15d78ac60f3c1a5e40405f7b1_1329x630.png@900-0-90-f.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo -i sed -i &#x27;/\#includedir \/etc\/sudoers.d/a\%shuxiaoer ALL=(ALL) NOPASSWD: ALL&#x27; /etc/sudoers<br></code></pre></td></tr></table></figure>
+
+<h3 id="问题3"><a href="#问题3" class="headerlink" title="问题3"></a>问题3</h3><p>在Nginx镜像改造过程中，发现nginx是通过脚本<code>operat_nginx.sh</code>启动的，而并非我们常用的nginx启动命令。</p>
+<p>这一段脚本的开发人员已经找不到了，没有注释，仔细研究后发现它将宿主机的端口限制在了80与443，应该是出于安全方面的考虑，我们将注释补上。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">!/bin/sh</span><br>source /etc/profile<br>if [ -e ~/.bashrc ];then<br>  source ~/.bashrc<br>fi<br><br>CUR_PATH=$(cd `dirname $0`; pwd)<br><br>function open_iptables_port()<br>&#123;<br>    sudo iptables -t filter -L INPUT -n | grep &quot;ACCEPT.*tcp dpt:&quot;$1 &amp;&gt;/dev/null<br>    if [ $? -ne 0 ]; then<br>        sudo iptables -A INPUT -t filter -p tcp -m state --state ESTABLISHED --dport $1 -j ACCEPT &amp;&gt;/dev/null<br>        if [ $? -ne 0 ]; then<br>            return 1<br>        fi<br>    fi<br>    return 0<br>&#125;<br><span class="hljs-meta">#</span><span class="bash">安全要求规定需仅放行必要tcp到80与443端口的请求</span><br>open_iptables_port 80<br>open_iptables_port 443<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">授权nginx文件可以以非root用户开启1024以下端口</span><br>sudo setcap cap_net_bind_service=+eip $CUR_PATH/nginx<br><br>if [[ $# -gt 0 ]]; then<br><span class="hljs-meta">	#</span><span class="bash">启动nginx，指定配置文件</span><br>    $CUR_PATH/nginx $* -c $CUR_PATH/../conf/nginx.conf -p $CUR_PATH/..<br>    if [[ $? -ne 0 ]]; then<br>        echo &quot;failed to operate nginx&quot;<br>        exit 1<br>    fi<br>else<br>    $CUR_PATH/nginx -c $CUR_PATH/../conf/nginx.conf -p $CUR_PATH/..<br>    if [[ $? -ne 0 ]]; then<br>        echo &quot;failed to start nginx&quot;<br>        exit 1<br>    fi<br>fi<br><br>if [[ -f $CUR_PATH/../nginx.pid ]]; then<br>    chmod 600 $CUR_PATH/../nginx.pid &gt; /dev/null 2&gt;&amp;1<br>fi<br><br></code></pre></td></tr></table></figure>
+
+<p>然后发现这段脚本执行还有些问题：</p>
+<p><strong>在配置了sudo免密执行之后，我们的nginx启动脚本仍然报错</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">ERROR: problem running iptables: iptables v1.6.1: can&#x27;t initialize iptables table `filter&#x27;: Permission denied (you must be root)<br>Perhaps iptables or your kernel needs to be upgraded.<br></code></pre></td></tr></table></figure>
+
+<p>网上搜索了一下之后发现，需要在docker启动命令上加上一行参数<code>--privileged</code>。</p>
+<p>如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">docker run -it --privileged 32jo13jl1 bash<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Magic_Ninja/article/details/88432140">https://blog.csdn.net/Magic_Ninja/article/details/88432140</a></p>
+<p>添加后启动正常，在我们的K8s资源文件中也需要添加相应的设置</p>
+<h3 id="问题4"><a href="#问题4" class="headerlink" title="问题4"></a>问题4</h3><p>在nginx启动命令中加入参数<code>-g &quot;daemon off;&quot;</code>来使我们的nginx线程处于前台运行。</p>
+<p>在我们的镜像构建脚本中，修改nginx启动脚本<code>operat_nginx.sh</code>中的nginx启动命令</p>
+<p><code>install_nginx.sh</code>中添加</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">···<br>install_nginx()<br>&#123;<br>	...<br>    #设置nginx启动脚本前台启动<br>    sed -i &quot;s#-p \$CUR_PATH\/\.\.#-p \$CUR_PATH\/\.\. -g \&quot;daemon off\;\&quot;#g&quot; $&#123;FRONTEND_USER_HOME&#125;/nginx-run/sbin/operat_nginx.sh<br>···<br></code></pre></td></tr></table></figure>
+
+<p>修改后<code>operat_nginx.sh</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs she">···<br>if [[ $# -gt 0 ]]; then<br>    $CUR_PATH/nginx $* -c $CUR_PATH/../conf/nginx.conf -p $CUR_PATH/.. -g &quot;daemon off;&quot;<br>    if [[ $? -ne 0 ]]; then<br>        echo &quot;failed to operate nginx&quot;<br>        exit 1<br>    fi<br>else<br>    $CUR_PATH/nginx -c $CUR_PATH/../conf/nginx.conf -p $CUR_PATH/.. -g &quot;daemon off;&quot;<br>    if [[ $? -ne 0 ]]; then<br>        echo &quot;failed to start nginx&quot;<br>        exit 1<br>    fi<br>fi<br>···<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="问题5"><a href="#问题5" class="headerlink" title="问题5"></a>问题5</h3><p>处理完了以上问题之后，试着运行一下frontend镜像，将宿主机的443端口映射到容器的443端口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@storage01 ~]# docker run -it -p 443:443 --privileged--rm fd2c8e2ae783 bash<br></code></pre></td></tr></table></figure>
+
+<p>在浏览器输入https://+ 宿主机ip</p>
+<p><a target="_blank" rel="noopener" href="https://192.168.4.118/">https://192.168.4.118</a></p>
+<p>OK，我们本节的内容就结束了。下一节中我们将来解决容器化的另外一个重要问题—日志采集。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%AE%B9%E5%99%A8%E5%8C%96%E6%8A%80%E6%9C%AF/">容器化技术</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AE%B9%E5%99%A8%E5%8C%96/">容器化</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Docker/">Docker</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Nginx/">Nginx</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/06/20/application-yml/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">application.yml配置文件优先级</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/06/04/containerization5-database/">
+                        <span class="hidden-mobile">(五)容器化实战--数据库改造</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"aABg0z1pmK0PBcdmxgbNq9HH-gzGzoHsz","appKey":"VmLcKlwx0DLrqXB6ubPaCo9B","placeholder":"说点什么","path":"window.location.pathname","avatar":"retro","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":"https://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/","emojiMaps":{"smile":"e3/2018new_weixioa02_org.png","lovely":"09/2018new_keai_org.png"},"enableQQ":true,"requiredFields":[]},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

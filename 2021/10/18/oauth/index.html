@@ -1,0 +1,732 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="123">
+  <meta name="author" content="Vincent Lee">
+  <meta name="keywords" content="">
+  
+  <title>(转载)简单理解OAuth2.0 - Vincent Lee</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":120,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Vincent Lee</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/background/vilige.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="(转载)简单理解OAuth2.0">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-10-18 11:31" pubdate>
+        2021年10月18日 中午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      50
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">(转载)简单理解OAuth2.0</h1>
+            
+            <div class="markdown-body">
+              <p>原文<a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2019/04/oauth_design.html">https://www.ruanyifeng.com/blog/2019/04/oauth_design.html</a></p>
+<h1 id="OAuth-2-0-的一个简单解释"><a href="#OAuth-2-0-的一个简单解释" class="headerlink" title="OAuth 2.0 的一个简单解释"></a>OAuth 2.0 的一个简单解释</h1><p><a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html">OAuth 2.0</a> 是目前最流行的授权机制，用来授权第三方应用，获取用户数据。</p>
+<p>这个标准比较抽象，使用了很多术语，初学者不容易理解。其实说起来并不复杂，下面我就通过一个简单的类比，帮助大家轻松理解，OAuth 2.0 到底是什么。</p>
+<h2 id="一、快递员问题"><a href="#一、快递员问题" class="headerlink" title="一、快递员问题"></a>一、快递员问题</h2><p>我住在一个大型的居民小区。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019040401.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>小区有门禁系统。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019040402.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>进入的时候需要输入密码。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019040403.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>我经常网购和外卖，每天都有快递员来送货。我必须找到一个办法，让快递员通过门禁系统，进入小区。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019040404.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>如果我把自己的密码，告诉快递员，他就拥有了与我同样的权限，这样好像不太合适。万一我想取消他进入小区的权力，也很麻烦，我自己的密码也得跟着改了，还得通知其他的快递员。</p>
+<p>有没有一种办法，让快递员能够自由进入小区，又不必知道小区居民的密码，而且他的唯一权限就是送货，其他需要密码的场合，他都没有权限？</p>
+<h2 id="二、授权机制的设计"><a href="#二、授权机制的设计" class="headerlink" title="二、授权机制的设计"></a>二、授权机制的设计</h2><p>于是，我设计了一套授权机制。</p>
+<p>第一步，门禁系统的密码输入器下面，增加一个按钮，叫做”获取授权”。快递员需要首先按这个按钮，去申请授权。</p>
+<p>第二步，他按下按钮以后，屋主（也就是我）的手机就会跳出对话框：有人正在要求授权。系统还会显示该快递员的姓名、工号和所属的快递公司。</p>
+<p>我确认请求属实，就点击按钮，告诉门禁系统，我同意给予他进入小区的授权。</p>
+<p>第三步，门禁系统得到我的确认以后，向快递员显示一个进入小区的令牌（access token）。令牌就是类似密码的一串数字，只在短期内（比如七天）有效。</p>
+<p>第四步，快递员向门禁系统输入令牌，进入小区。</p>
+<p>有人可能会问，为什么不是远程为快递员开门，而要为他单独生成一个令牌？这是因为快递员可能每天都会来送货，第二天他还可以复用这个令牌。另外，有的小区有多重门禁，快递员可以使用同一个令牌通过它们。</p>
+<h2 id="三、互联网场景"><a href="#三、互联网场景" class="headerlink" title="三、互联网场景"></a>三、互联网场景</h2><p>我们把上面的例子搬到互联网，就是 OAuth 的设计了。</p>
+<p>首先，居民小区就是储存用户数据的网络服务。比如，微信储存了我的好友信息，获取这些信息，就必须经过微信的”门禁系统”。</p>
+<p>其次，快递员（或者说快递公司）就是第三方应用，想要穿过门禁系统，进入小区。</p>
+<p>最后，我就是用户本人，同意授权第三方应用进入小区，获取我的数据。</p>
+<p><strong>简单说，OAuth 就是一种授权机制。数据的所有者告诉系统，同意授权第三方应用进入系统，获取这些数据。系统从而产生一个短期的进入令牌（token），用来代替密码，供第三方应用使用。</strong></p>
+<h2 id="四、令牌与密码"><a href="#四、令牌与密码" class="headerlink" title="四、令牌与密码"></a>四、令牌与密码</h2><p>令牌（token）与密码（password）的作用是一样的，都可以进入系统，但是有三点差异。</p>
+<p>（1）令牌是短期的，到期会自动失效，用户自己无法修改。密码一般长期有效，用户不修改，就不会发生变化。</p>
+<p>（2）令牌可以被数据所有者撤销，会立即失效。以上例而言，屋主可以随时取消快递员的令牌。密码一般不允许被他人撤销。</p>
+<p>（3）令牌有权限范围（scope），比如只能进小区的二号门。对于网络服务来说，只读令牌就比读写令牌更安全。密码一般是完整权限。</p>
+<p>上面这些设计，保证了令牌既可以让第三方应用获得权限，同时又随时可控，不会危及系统安全。这就是 OAuth 2.0 的优点。</p>
+<p>注意，只要知道了令牌，就能进入系统。系统一般不会再次确认身份，所以<strong>令牌必须保密，泄漏令牌与泄漏密码的后果是一样的。</strong> 这也是为什么令牌的有效期，一般都设置得很短的原因。</p>
+<p>OAuth 2.0 对于如何颁发令牌的细节，规定得非常详细。具体来说，一共分成四种授权类型（authorization grant），即四种颁发令牌的方式，适用于不同的互联网场景。下一章就来介绍这四种类型，并给出代码实例。</p>
+<h1 id="OAuth-2-0-的四种方式"><a href="#OAuth-2-0-的四种方式" class="headerlink" title="OAuth 2.0 的四种方式"></a>OAuth 2.0 的四种方式</h1><p>上一章介绍了 OAuth 2.0 是一种授权机制，主要用来颁发令牌（token）。本章接着介绍颁发令牌的实务操作。</p>
+<p>下面我假定，你已经理解了 OAuth 2.0 的含义和设计思想。</p>
+<h2 id="RFC-6749"><a href="#RFC-6749" class="headerlink" title="RFC 6749"></a>RFC 6749</h2><p>OAuth 2.0 的标准是 <a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc6749">RFC 6749</a> 文件。该文件先解释了 OAuth 是什么。</p>
+<blockquote>
+<p>OAuth 引入了一个授权层，用来分离两种不同的角色：客户端和资源所有者。……资源所有者同意以后，资源服务器可以向客户端颁发令牌。客户端通过令牌，去请求数据。</p>
+</blockquote>
+<p>这段话的意思就是，<strong>OAuth 的核心就是向第三方应用颁发令牌。</strong>然后，RFC 6749 接着写道：</p>
+<blockquote>
+<p>（由于互联网有多种场景，）本标准定义了获得令牌的四种授权方式（authorization grant ）。</p>
+</blockquote>
+<p>也就是说，<strong>OAuth 2.0 规定了四种获得令牌的流程。你可以选择最适合自己的那一种，向第三方应用颁发令牌。</strong>下面就是这四种授权方式。</p>
+<blockquote>
+<ul>
+<li>授权码（authorization-code）</li>
+<li>隐藏式（implicit）</li>
+<li>密码式（password）：</li>
+<li>客户端凭证（client credentials）</li>
+</ul>
+</blockquote>
+<p>注意，不管哪一种授权方式，第三方应用申请令牌之前，都必须先到系统备案，说明自己的身份，然后会拿到两个身份识别码：客户端 ID（client ID）和客户端密钥（client secret）。这是为了防止令牌被滥用，没有备案过的第三方应用，是不会拿到令牌的。</p>
+<h2 id="第一种授权方式：授权码"><a href="#第一种授权方式：授权码" class="headerlink" title="第一种授权方式：授权码"></a>第一种授权方式：授权码</h2><p><strong>授权码（authorization code）方式，指的是第三方应用先申请一个授权码，然后再用该码获取令牌。</strong></p>
+<p>这种方式是最常用的流程，安全性也最高，它适用于那些有后端的 Web 应用。授权码通过前端传送，令牌则是储存在后端，而且所有与资源服务器的通信都在后端完成。这样的前后端分离，可以避免令牌泄漏。</p>
+<p>第一步，A 网站提供一个链接，用户点击后就会跳转到 B 网站，授权用户数据给 A 网站使用。下面就是 A 网站跳转 B 网站的一个示意链接。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs javascript">https:<span class="hljs-comment">//b.com/oauth/authorize?</span><br>  response_type=code&amp;<br>  client_id=CLIENT_ID&amp;<br>  redirect_uri=CALLBACK_URL&amp;<br>  scope=read<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面 URL 中，<code>response_type</code>参数表示要求返回授权码（<code>code</code>），<code>client_id</code>参数让 B 知道是谁在请求，<code>redirect_uri</code>参数是 B 接受或拒绝请求后的跳转网址，<code>scope</code>参数表示要求的授权范围（这里是只读）。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019040902.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>第二步，用户跳转后，B 网站会要求用户登录，然后询问是否同意给予 A 网站授权。用户表示同意，这时 B 网站就会跳回<code>redirect_uri</code>参数指定的网址。跳转时，会传回一个授权码，就像下面这样。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">https:<span class="hljs-comment">//a.com/callback?code=AUTHORIZATION_CODE</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面 URL 中，<code>code</code>参数就是授权码。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019040907.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>第三步，A 网站拿到授权码以后，就可以在后端，向 B 网站请求令牌。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs javascript">https:<span class="hljs-comment">//b.com/oauth/token?</span><br> client_id=CLIENT_ID&amp;<br> client_secret=CLIENT_SECRET&amp;<br> grant_type=authorization_code&amp;<br> code=AUTHORIZATION_CODE&amp;<br> redirect_uri=CALLBACK_URL<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面 URL 中，<code>client_id</code>参数和<code>client_secret</code>参数用来让 B 确认 A 的身份（<code>client_secret</code>参数是保密的，因此只能在后端发请求），<code>grant_type</code>参数的值是<code>AUTHORIZATION_CODE</code>，表示采用的授权方式是授权码，<code>code</code>参数是上一步拿到的授权码，<code>redirect_uri</code>参数是令牌颁发后的回调网址。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019040904.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>第四步，B 网站收到请求以后，就会颁发令牌。具体做法是向<code>redirect_uri</code>指定的网址，发送一段 JSON 数据。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs javascript">&#123;    <br>  <span class="hljs-string">&quot;access_token&quot;</span>:<span class="hljs-string">&quot;ACCESS_TOKEN&quot;</span>,<br>  <span class="hljs-string">&quot;token_type&quot;</span>:<span class="hljs-string">&quot;bearer&quot;</span>,<br>  <span class="hljs-string">&quot;expires_in&quot;</span>:<span class="hljs-number">2592000</span>,<br>  <span class="hljs-string">&quot;refresh_token&quot;</span>:<span class="hljs-string">&quot;REFRESH_TOKEN&quot;</span>,<br>  <span class="hljs-string">&quot;scope&quot;</span>:<span class="hljs-string">&quot;read&quot;</span>,<br>  <span class="hljs-string">&quot;uid&quot;</span>:<span class="hljs-number">100101</span>,<br>  <span class="hljs-string">&quot;info&quot;</span>:&#123;...&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面 JSON 数据中，<code>access_token</code>字段就是令牌，A 网站在后端拿到了。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019040905.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<h2 id="第二种方式：隐藏式"><a href="#第二种方式：隐藏式" class="headerlink" title="第二种方式：隐藏式"></a>第二种方式：隐藏式</h2><p>有些 Web 应用是纯前端应用，没有后端。这时就不能用上面的方式了，必须将令牌储存在前端。<strong>RFC 6749 就规定了第二种方式，允许直接向前端颁发令牌。这种方式没有授权码这个中间步骤，所以称为（授权码）”隐藏式”（implicit）。</strong></p>
+<p>第一步，A 网站提供一个链接，要求用户跳转到 B 网站，授权用户数据给 A 网站使用。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs javascript">https:<span class="hljs-comment">//b.com/oauth/authorize?</span><br>  response_type=token&amp;<br>  client_id=CLIENT_ID&amp;<br>  redirect_uri=CALLBACK_URL&amp;<br>  scope=read<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面 URL 中，<code>response_type</code>参数为<code>token</code>，表示要求直接返回令牌。</p>
+<p>第二步，用户跳转到 B 网站，登录后同意给予 A 网站授权。这时，B 网站就会跳回<code>redirect_uri</code>参数指定的跳转网址，并且把令牌作为 URL 参数，传给 A 网站。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">https:<span class="hljs-comment">//a.com/callback#token=ACCESS_TOKEN</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面 URL 中，<code>token</code>参数就是令牌，A 网站因此直接在前端拿到令牌。</p>
+<p>注意，令牌的位置是 URL 锚点（fragment），而不是查询字符串（querystring），这是因为 OAuth 2.0 允许跳转网址是 HTTP 协议，因此存在”中间人攻击”的风险，而浏览器跳转时，锚点不会发到服务器，就减少了泄漏令牌的风险。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019040906.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>这种方式把令牌直接传给前端，是很不安全的。因此，只能用于一些安全要求不高的场景，并且令牌的有效期必须非常短，通常就是会话期间（session）有效，浏览器关掉，令牌就失效了。</p>
+<h2 id="第三种方式：密码式"><a href="#第三种方式：密码式" class="headerlink" title="第三种方式：密码式"></a>第三种方式：密码式</h2><p><strong>如果你高度信任某个应用，RFC 6749 也允许用户把用户名和密码，直接告诉该应用。该应用就使用你的密码，申请令牌，这种方式称为”密码式”（password）。</strong></p>
+<p>第一步，A 网站要求用户提供 B 网站的用户名和密码。拿到以后，A 就直接向 B 请求令牌。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs javascript">https:<span class="hljs-comment">//oauth.b.com/token?</span><br>  grant_type=password&amp;<br>  username=USERNAME&amp;<br>  password=PASSWORD&amp;<br>  client_id=CLIENT_ID<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面 URL 中，<code>grant_type</code>参数是授权方式，这里的<code>password</code>表示”密码式”，<code>username</code>和<code>password</code>是 B 的用户名和密码。</p>
+<p>第二步，B 网站验证身份通过后，直接给出令牌。注意，这时不需要跳转，而是把令牌放在 JSON 数据里面，作为 HTTP 回应，A 因此拿到令牌。</p>
+<p>这种方式需要用户给出自己的用户名/密码，显然风险很大，因此只适用于其他授权方式都无法采用的情况，而且必须是用户高度信任的应用。</p>
+<h2 id="第四种方式：凭证式"><a href="#第四种方式：凭证式" class="headerlink" title="第四种方式：凭证式"></a>第四种方式：凭证式</h2><p><strong>最后一种方式是凭证式（client credentials），适用于没有前端的命令行应用，即在命令行下请求令牌。</strong></p>
+<p>第一步，A 应用在命令行向 B 发出请求。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs javascript">https:<span class="hljs-comment">//oauth.b.com/token?</span><br>  grant_type=client_credentials&amp;<br>  client_id=CLIENT_ID&amp;<br>  client_secret=CLIENT_SECRET<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面 URL 中，<code>grant_type</code>参数等于<code>client_credentials</code>表示采用凭证式，<code>client_id</code>和<code>client_secret</code>用来让 B 确认 A 的身份。</p>
+<p>第二步，B 网站验证通过以后，直接返回令牌。</p>
+<p>这种方式给出的令牌，是针对第三方应用的，而不是针对用户的，即有可能多个用户共享同一个令牌。</p>
+<h2 id="令牌的使用"><a href="#令牌的使用" class="headerlink" title="令牌的使用"></a>令牌的使用</h2><p>A 网站拿到令牌以后，就可以向 B 网站的 API 请求数据了。</p>
+<p>此时，每个发到 API 的请求，都必须带有令牌。具体做法是在请求的头信息，加上一个<code>Authorization</code>字段，令牌就放在这个字段里面。</p>
+<blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl -H <span class="hljs-string">&quot;Authorization: Bearer ACCESS_TOKEN&quot;</span> \<br><span class="hljs-string">&quot;https://api.b.com&quot;</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面命令中，<code>ACCESS_TOKEN</code>就是拿到的令牌。</p>
+<h2 id="更新令牌"><a href="#更新令牌" class="headerlink" title="更新令牌"></a>更新令牌</h2><p>令牌的有效期到了，如果让用户重新走一遍上面的流程，再申请一个新的令牌，很可能体验不好，而且也没有必要。OAuth 2.0 允许用户自动更新令牌。</p>
+<p>具体方法是，B 网站颁发令牌的时候，一次性颁发两个令牌，一个用于获取数据，另一个用于获取新的令牌（refresh token 字段）。令牌到期前，用户使用 refresh token 发一个请求，去更新令牌。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs javascript">https:<span class="hljs-comment">//b.com/oauth/token?</span><br>  grant_type=refresh_token&amp;<br>  client_id=CLIENT_ID&amp;<br>  client_secret=CLIENT_SECRET&amp;<br>  refresh_token=REFRESH_TOKEN<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面 URL 中，<code>grant_type</code>参数为<code>refresh_token</code>表示要求更新令牌，<code>client_id</code>参数和<code>client_secret</code>参数用于确认身份，<code>refresh_token</code>参数就是用于更新令牌的令牌。</p>
+<p>B 网站验证通过以后，就会颁发新的令牌。</p>
+<p>写到这里，颁发令牌的四种方式就介绍完了。</p>
+<h1 id="GitHub-OAuth-第三方登录示例教程"><a href="#GitHub-OAuth-第三方登录示例教程" class="headerlink" title="GitHub OAuth 第三方登录示例教程"></a>GitHub OAuth 第三方登录示例教程</h1><p>下面演示一个实例，演示如何通过 OAuth 2.0 向 GitHub 的 API 申请令牌，然后再用令牌获取数据。</p>
+<p>很多网站登录时，允许使用第三方网站的身份，这称为”第三方登录”。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019042101.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload alt="img"></p>
+<p>下面就以 GitHub 为例，写一个最简单的应用，演示第三方登录。</p>
+<h2 id="一、第三方登录的原理"><a href="#一、第三方登录的原理" class="headerlink" title="一、第三方登录的原理"></a>一、第三方登录的原理</h2><p>所谓第三方登录，实质就是 OAuth 授权。用户想要登录 A 网站，A 网站让用户提供第三方网站的数据，证明自己的身份。获取第三方网站的身份数据，就需要 OAuth 授权。</p>
+<p>举例来说，A 网站允许 GitHub 登录，背后就是下面的流程。</p>
+<blockquote>
+<ol>
+<li>A 网站让用户跳转到 GitHub。</li>
+<li>GitHub 要求用户登录，然后询问”A 网站要求获得 xx 权限，你是否同意？”</li>
+<li>用户同意，GitHub 就会重定向回 A 网站，同时发回一个授权码。</li>
+<li>A 网站使用授权码，向 GitHub 请求令牌。</li>
+<li>GitHub 返回令牌.</li>
+<li>A 网站使用令牌，向 GitHub 请求用户数据。</li>
+</ol>
+</blockquote>
+<p>下面就是这个流程的代码实现。</p>
+<h2 id="二、应用登记"><a href="#二、应用登记" class="headerlink" title="二、应用登记"></a>二、应用登记</h2><p>一个应用要求 OAuth 授权，必须先到对方网站登记，让对方知道是谁在请求。</p>
+<p>所以，你要先去 GitHub 登记一下。当然，我已经登记过了，你使用我的登记信息也可以，但为了完整走一遍流程，还是建议大家自己登记。这是免费的。</p>
+<p>访问这个<a target="_blank" rel="noopener" href="https://github.com/settings/applications/new">网址</a>，填写登记表。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019042102.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload alt="img"></p>
+<p>应用的名称随便填，主页 URL 填写<code>http://localhost:8080</code>，跳转网址填写 <code>http://localhost:8080/oauth/redirect</code>。</p>
+<p>提交表单以后，GitHub 应该会返回客户端 ID（client ID）和客户端密钥（client secret），这就是应用的身份识别码。</p>
+<h2 id="三、示例仓库"><a href="#三、示例仓库" class="headerlink" title="三、示例仓库"></a>三、示例仓库</h2><p>我写了一个<a target="_blank" rel="noopener" href="https://github.com/ruanyf/node-oauth-demo">代码仓库</a>，请将它克隆到本地。</p>
+<blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ git <span class="hljs-built_in">clone</span> git@github.com:ruanyf/node-oauth-demo.git<br>$ <span class="hljs-built_in">cd</span> node-oauth-demo<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>两个配置项要改一下，写入上一步的身份识别码。</p>
+<blockquote>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/ruanyf/node-oauth-demo/blob/master/index.js#L3"><code>index.js</code></a>：改掉变量<code>clientID</code> and <code>clientSecret</code></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/ruanyf/node-oauth-demo/blob/master/public/index.html#L16"><code>public/index.html</code></a>：改掉变量<code>client_id</code></li>
+</ul>
+</blockquote>
+<p>然后，安装依赖。</p>
+<blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ npm install<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>启动服务。</p>
+<blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ node index.js<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>浏览器访问<code>http://localhost:8080</code>，就可以看到这个示例了。</p>
+<h2 id="四、浏览器跳转-GitHub"><a href="#四、浏览器跳转-GitHub" class="headerlink" title="四、浏览器跳转 GitHub"></a>四、浏览器跳转 GitHub</h2><p>示例的首页很简单，就是一个链接，让用户跳转到 GitHub。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019042103.jpg" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload alt="img"></p>
+<p>跳转的 URL 如下。</p>
+<blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs markup">https://github.com/login/oauth/authorize?<br>  client_id=7e015d8ce32370079895&amp;<br>  redirect_uri=http://localhost:8080/oauth/redirect<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>这个 URL 指向 GitHub 的 OAuth 授权网址，带有两个参数：<code>client_id</code>告诉 GitHub 谁在请求，<code>redirect_uri</code>是稍后跳转回来的网址。</p>
+<p>用户点击到了 GitHub，GitHub 会要求用户登录，确保是本人在操作。</p>
+<h2 id="五、授权码"><a href="#五、授权码" class="headerlink" title="五、授权码"></a>五、授权码</h2><p>登录后，GitHub 询问用户，该应用正在请求数据，你是否同意授权。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/bg2019042104.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload alt="img"></p>
+<p>用户同意授权， GitHub 就会跳转到<code>redirect_uri</code>指定的跳转网址，并且带上授权码，跳转回来的 URL 就是下面的样子。</p>
+<blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs markup">http://localhost:8080/oauth/redirect?<br>  code=859310e7cecc9196f4af<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>后端收到这个请求以后，就拿到了授权码（<code>code</code>参数）。</p>
+<h2 id="六、后端实现"><a href="#六、后端实现" class="headerlink" title="六、后端实现"></a>六、后端实现</h2><p>示例的<a target="_blank" rel="noopener" href="https://github.com/ruanyf/node-oauth-demo/blob/master/index.js">后端</a>采用 Koa 框架编写，具体语法请看<a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2017/08/koa.html">教程</a>。</p>
+<p>这里的关键是针对<code>/oauth/redirect</code>的请求，编写一个<a target="_blank" rel="noopener" href="https://github.com/ruanyf/node-oauth-demo/blob/master/index.js#L16">路由</a>，完成 OAuth 认证。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> oauth = <span class="hljs-keyword">async</span> ctx =&gt; &#123;<br>  <span class="hljs-comment">// ...</span><br>&#125;;<br><br>app.use(route.get(<span class="hljs-string">&#x27;/oauth/redirect&#x27;</span>, oauth));<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面代码中，<code>oauth</code>函数就是路由的处理函数。下面的代码都写在这个函数里面。</p>
+<p>路由函数的第一件事，是从 URL 取出授权码。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> requestToken = ctx.request.query.code;<br></code></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="七、令牌"><a href="#七、令牌" class="headerlink" title="七、令牌"></a>七、令牌</h2><p>后端使用这个授权码，向 GitHub 请求令牌。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> tokenResponse = <span class="hljs-keyword">await</span> axios(&#123;<br>  <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;post&#x27;</span>,<br>  <span class="hljs-attr">url</span>: <span class="hljs-string">&#x27;https://github.com/login/oauth/access_token?&#x27;</span> +<br>    <span class="hljs-string">`client_id=<span class="hljs-subst">$&#123;clientID&#125;</span>&amp;`</span> +<br>    <span class="hljs-string">`client_secret=<span class="hljs-subst">$&#123;clientSecret&#125;</span>&amp;`</span> +<br>    <span class="hljs-string">`code=<span class="hljs-subst">$&#123;requestToken&#125;</span>`</span>,<br>  <span class="hljs-attr">headers</span>: &#123;<br>    <span class="hljs-attr">accept</span>: <span class="hljs-string">&#x27;application/json&#x27;</span><br>  &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面代码中，GitHub 的令牌接口<code>https://github.com/login/oauth/access_token</code>需要提供三个参数。</p>
+<blockquote>
+<ul>
+<li><code>client_id</code>：客户端的 ID</li>
+<li><code>client_secret</code>：客户端的密钥</li>
+<li><code>code</code>：授权码</li>
+</ul>
+</blockquote>
+<p>作为回应，GitHub 会返回一段 JSON 数据，里面包含了令牌<code>accessToken</code>。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> accessToken = tokenResponse.data.access_token;<br></code></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="八、API-数据"><a href="#八、API-数据" class="headerlink" title="八、API 数据"></a>八、API 数据</h2><p>有了令牌以后，就可以向 API 请求数据了。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> axios(&#123;<br>  <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;get&#x27;</span>,<br>  <span class="hljs-attr">url</span>: <span class="hljs-string">`https://api.github.com/user`</span>,<br>  <span class="hljs-attr">headers</span>: &#123;<br>    <span class="hljs-attr">accept</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>,<br>    <span class="hljs-attr">Authorization</span>: <span class="hljs-string">`token <span class="hljs-subst">$&#123;accessToken&#125;</span>`</span><br>  &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>上面代码中，GitHub API 的地址是<code>https://api.github.com/user</code>，请求的时候必须在 HTTP 头信息里面带上令牌<code>Authorization: token 361507da</code>。</p>
+<p>然后，就可以拿到用户数据，得到用户的身份。</p>
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> name = result.data.name;<br>ctx.response.redirect(<span class="hljs-string">`/welcome.html?name=<span class="hljs-subst">$&#123;name&#125;</span>`</span>);<br></code></pre></td></tr></table></figure>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%BD%AC%E8%BD%BD/">转载</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/OAuth/">OAuth</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E8%AE%A4%E8%AF%81/">认证</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%89%B4%E6%9D%83/">鉴权</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A4%E8%AF%81%E7%B3%BB%E7%BB%9F/">分布式认证系统</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/11/04/blog-imgbed/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">使用github图床+CDN优化github资源加载慢</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/09/29/servlet-java/">
+                        <span class="hidden-mobile">从Servlet聊聊JAVA</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"aABg0z1pmK0PBcdmxgbNq9HH-gzGzoHsz","appKey":"VmLcKlwx0DLrqXB6ubPaCo9B","placeholder":"说点什么","path":"window.location.pathname","avatar":"retro","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":"https://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/","emojiMaps":{"smile":"e3/2018new_weixioa02_org.png","lovely":"09/2018new_keai_org.png"},"enableQQ":true,"requiredFields":[]},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

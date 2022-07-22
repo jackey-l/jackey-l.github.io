@@ -1,0 +1,679 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="123">
+  <meta name="author" content="Vincent Lee">
+  <meta name="keywords" content="">
+  
+  <title>(四)容器化实战--eureka改造 - Vincent Lee</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":120,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Vincent Lee</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/background/vilige.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="(四)容器化实战--eureka改造">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-06-04 16:20" pubdate>
+        2021年6月4日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      139
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">(四)容器化实战--eureka改造</h1>
+            
+            <div class="markdown-body">
+              <h3 id="本章我们主要解决3个问题"><a href="#本章我们主要解决3个问题" class="headerlink" title="本章我们主要解决3个问题"></a>本章我们主要解决3个问题</h3><ul>
+<li><p><strong>docker 镜像私仓的搭建</strong></p>
+<p>上文提到，我们的源码直接推到dockerhub公网仓上是不安全的，我们需要一个私仓来放置我们的镜像，让k8s使用私仓各个版本的镜像去编排、发布微服务。如果在容器化的实践中，已经有了镜像仓库，那么这个步骤可以省略，在k8s的资源文件、及推送镜像的步骤当中，自行把本文提到的私仓地址替换为对应的仓库地址即可。</p>
+</li>
+<li><p><strong>registry 、微服务集群无法互相注册。</strong></p>
+<p>原因为POD的IP不是固定的，随着每次Deployment、StatefulSet、Service的销毁、更新、回滚等，都会生成新的POD及IP，那么我们把IP写死在eureka以及微服务的配置文件中里肯定就无法寻址与路由了。k8s了Service的设计其实是用来提供类似eureka的功能的，但是由于本次改造时间有限，如果改动微服务架构，那么工作量太大，因此我们先继续沿用之前的微服务架构，在后面可以继续优化为。一种比较好的实践是k8s+SpringBoot+RPC调用的架构。</p>
+</li>
+<li><p><strong>registry服务的状态问题。</strong><br>registry目前仍然是无状态的，虽然我们使用了StatefulSet，但是并没有对他的持久化策略进行设置，我们的微服务日志需要保存在一个固定的卷，与POD的生命周期解耦。这个K8s也有对应的功能支持，我们在这个章节把这个问题解决。</p>
+</li>
+</ul>
+<hr>
+<h3 id="问题1"><a href="#问题1" class="headerlink" title="问题1"></a>问题1</h3><p>首先我们来搭建一个docker私仓</p>
+<blockquote>
+<p>这里采用Docker提供的现成解决方案–Docker Registry</p>
+<p>官方文档：<a target="_blank" rel="noopener" href="https://docs.docker.com/registry/">https://docs.docker.com/registry/</a></p>
+</blockquote>
+<p>我们这里使用master01节点来搭建，这里我们就不做HA了。有兴趣的同学可以自己研究。</p>
+<h4 id="1、-获取registry镜像"><a href="#1、-获取registry镜像" class="headerlink" title="1、    获取registry镜像"></a>1、    获取registry镜像</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 docker]# docker pull registry:2<br></code></pre></td></tr></table></figure>
+
+<h4 id="2、-运行registry容器"><a href="#2、-运行registry容器" class="headerlink" title="2、    运行registry容器"></a>2、    运行registry容器</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@dockerA ~]# docker run  -itd --name registry --restart=always  -p 5000:5000 -v /opt/registry:/var/lib/registry registry:2<br><br>//创建一个registry容器来运行registry服务；<br>//-p：端口映射（前面是宿主机端口：后面是容器暴露的端口）；<br>//-v：挂载目录（前面是宿主机的目录：后面的是容器的目录）自动创建宿主机的目录；<br>//--restart=always：随docker服务的启动而启动！<br></code></pre></td></tr></table></figure>
+
+<h4 id="3、-验证"><a href="#3、-验证" class="headerlink" title="3、    验证"></a>3、    验证</h4><p>往私仓上推送镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">按照规则重命名要推送的镜像，</span><br><span class="hljs-meta">#</span><span class="bash">注：私有仓库镜像的命名规则：192.168.45.129:5000/XXX（宿主机的IP:5000端口/镜像名称:版本）</span><br>[root@master01 docker]# docker tag nginx:latest 192.168.60.128:5000/my_nginx:1.0<br><span class="hljs-meta">#</span><span class="bash">推送</span><br>[root@master01 docker]# docker push 192.168.60.128:5000/my_nginx<br><span class="hljs-meta">#</span><span class="bash">查看私藏镜像清单</span><br>[root@master01 docker]# curl -XGET http://192.168.60.128:5000/v2/_catalog<br>&#123;&quot;repositories&quot;:[&quot;my_hello&quot;,&quot;my_nginx&quot;]&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在其他客户端下载镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@node02 ~]# docker pull 192.168.60.128:5000/my_nginx<br>Using default tag: latest<br>Error response from daemon: Get https://192.168.60.128:5000/v2/: http: server gave HTTP response to HTTPS client<br><span class="hljs-meta">#</span><span class="bash">报错https请求错误，设置跳过https验证</span><br>[root@master01 docker]# cat /etc/docker/daemon.json<br>&#123;<br>  &quot;insecure-registries&quot;:[&quot;192.168.60.128:5000&quot;],<br>  &quot;registry-mirrors&quot;: [&quot;http://192.168.60.128:5000&quot;],<br>  &quot;exec-opts&quot;: [&quot;native.cgroupdriver=systemd&quot;],<br>  &quot;log-driver&quot;: &quot;json-file&quot;,<br>  &quot;log-opts&quot;: &#123;<br>    &quot;max-size&quot;: &quot;100m&quot;<br>  &#125;,<br>  &quot;storage-driver&quot;: &quot;overlay2&quot;<br>&#125;<br>[root@node02 ~]# systemctl daemon-reload &amp;&amp; systemctl restart docker<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">成功拉取</span><br>[root@node02 ~]# docker pull 192.168.60.128:5000/my_nginx:1.0<br>1.0: Pulling from my_nginx<br>Digest: sha256:61191087790c31e43eb37caa10de1135b002f10c09fdda7fa8a5989db74033aa<br>Status: Downloaded newer image for 192.168.60.128:5000/my_nginx:1.0<br></code></pre></td></tr></table></figure>
+
+<h4 id="4、-如何删除Docker-Registry"><a href="#4、-如何删除Docker-Registry" class="headerlink" title="4、    如何删除Docker Registry"></a>4、    如何删除Docker Registry</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 docker]# docker container stop registry &amp;&amp; docker container rm -v registry<br>registry<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="问题2"><a href="#问题2" class="headerlink" title="问题2"></a>问题2</h3><h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><p>对于一般的后端微服务来说，在k8s中同时起多个相同的服务来做负载均衡，只需要简单的修改deployment的replicas，增加pod数量，然后通过对外暴露一个service来代理这些pod。</p>
+<p>而对于eureka来说，要实现eureka的高可用，那就不是修改replicas这么方便了。由于部署的多个eureka之间需要将自己注册到彼此，因此要做一些特殊改动。</p>
+<p>主要是用到了StatefulSet和headless service这两个k8s对象</p>
+<h4 id="StatefulSet、Headless-Service简介"><a href="#StatefulSet、Headless-Service简介" class="headerlink" title="StatefulSet、Headless Service简介"></a>StatefulSet、Headless Service简介</h4><h5 id="StatefulSet"><a href="#StatefulSet" class="headerlink" title="StatefulSet"></a>StatefulSet</h5><p>StatefulSet是为了解决有状态服务的问题（对应Deployments和ReplicaSets是为无状态服务而设计），其应用场景包括</p>
+<p>稳定的持久化存储，即Pod重新调度后还是能访问到相同的持久化数据，基于PVC来实现</p>
+<p>稳定的网络标志，即Pod重新调度后其PodName和HostName不变，基于Headless Service（即没有Cluster IP的Service）来实现</p>
+<p>有序部署，有序扩展，即Pod是有顺序的，在部署或者扩展的时候要依据定义的顺序依次依次进行（即从0到N-1，在下一个Pod运行之前所有之前的Pod必须都是Running和Ready状态），基于init containers来实现</p>
+<p>有序收缩，有序删除（即从N-1到0）</p>
+<p>StatefulSet中每个Pod的DNS格式为</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">statefulSetName-&#123;<span class="hljs-number">0.</span>.N<span class="hljs-number">-1</span>&#125;.serviceName.<span class="hljs-keyword">namespace</span>.svc.cluster.local<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>serviceName为Headless Service的名字<br>0..N-1为Pod所在的序号，从0开始到N-1<br>statefulSetName为StatefulSet的名字<br>namespace为服务所在的namespace，Headless Service和StatefulSet必须在相同的namespace<br>cluster.local为Cluster Domain</p>
+</blockquote>
+<h5 id="Headless-Service"><a href="#Headless-Service" class="headerlink" title="Headless Service"></a>Headless Service</h5><p>Headless Service 和普通service的一个显著的区别是，Headless Service的对应的每一个Endpoints，即每一个Pod，都会有对应的DNS域名<br> 例如：我们可以用过这种域名来访问某个具体的pod：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs css">statefulSetName-<span class="hljs-number">0</span><span class="hljs-selector-class">.serviceName</span><span class="hljs-selector-class">.namespace</span><span class="hljs-selector-class">.svc</span><span class="hljs-selector-class">.cluster</span><span class="hljs-selector-class">.local</span><br></code></pre></td></tr></table></figure>
+
+<p>在实际使用中，将service的clusterIP设置成None，就表明这个service是一个Headless Service。</p>
+<h5 id="StatefulSet和Headless-Service的结合"><a href="#StatefulSet和Headless-Service的结合" class="headerlink" title="StatefulSet和Headless Service的结合"></a>StatefulSet和Headless Service的结合</h5><p>通过 StatefulSet，我们得到了一些列pod，每个pod的name为statefulSetName-{0..N-1}，<br> 加入我们创建了一个名称叫eureka的StatefulSet，并且设置replicas =3，那么部署到k8s后，k8s会为我们生成三个名称依次为eureka-0，eureka-1，eureka-2的pod。<br> 通过Headless Service，我们可以通过pod名称来访问某个pod，</p>
+<p>例如，我们在namespace=test的命名空间下创建了一个名称为register-server的service，并且关联了之前StatefulSet创建的pod，那么我们可以在集群内任意地方<br> 通过eureka-0.register-server.test.svc.cluster.local这个域名访问到eureka-0这个pod。</p>
+<h4 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h4><p>有了前面的基础，现在部署eureka集群的方式就逐渐清晰了。</p>
+<p>首先明确部署eureka的关键点：需要让每个eureka注册到另外的eureka上。<br> 也就是eureka.client.serviceUrl.defaultZone这个配置，是一组eureka的地址。<br> 通过StatefulSet，我们可以明确知道生成的每个eureka的名称，<br> 通过Headless Service，我们又可以访问到每个eureka，所以eureka.client.serviceUrl.defaultZone的值就是</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-string">&quot;http://registry-0.registry-service:8022/eureka,http://registry-0.registry-service:8022/eureka&quot;</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>由于这两个个pod在同一个命名空间内，可以省略.namespace.svc.cluster.local</p>
+</blockquote>
+<p>有个这个配置，那么我们部署StatefulSet，和Headless Service<br> 那么我们能基本能得到一个可用的eureka集群<br> 除了会有以下问题：<br> 红框中的可用副本（available-replicas）会出现在不可用unavailable-replicas中</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20211104173002335.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>原因是我们默认是通过ip的方式来注册eureka（eureka.instance.prefer-ip-address配置默认为true），但是eureka的注册地址又是域名的形式，两者不一致。<br> 要解决这个问题，还需做一些额外的配置。</p>
+<p>1.在application.yaml中，将eureka.instance.prefer-ip-address设置成false。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">eureka:<br>    instance:<br>       prefer-ip-address: <span class="hljs-literal">false</span><br></code></pre></td></tr></table></figure>
+
+<p>2.registry-sts.yml中，增加环境变量配置，将pod的名称绑定到环境变量</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs yml"><span class="hljs-string">...</span>    <br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">registry</span><br>          <span class="hljs-attr">image:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.60</span><span class="hljs-number">.128</span><span class="hljs-string">:5000/registry:1.0.0</span> <br>          <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">Always</span><br>          <span class="hljs-attr">ports:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8022</span><br>          <span class="hljs-attr">env:</span> <span class="hljs-comment"># 环境变量设置</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">EUREKA_URL_LIST</span> <br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;http://registry-0.registry-service:8022/eureka,http://registry-0.registry-service:8022/eureka&quot;</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">REGISTRY_PORT</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-number">8022</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">EUREKA_INSTANCE_HOSTNAME</span> <span class="hljs-comment">#环境变量，这个变量在我们项目的配置文件中有配置，作用是指定注册到eureka集群中的hostname</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">$&#123;MY_POD_NAME&#125;.registry-service</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">MY_NODE_NAME</span><br>              <span class="hljs-attr">valueFrom:</span><br>                <span class="hljs-attr">fieldRef:</span><br>                  <span class="hljs-attr">fieldPath:</span> <span class="hljs-string">spec.nodeName</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">MY_POD_NAMESPACE</span> <span class="hljs-comment"># POD当前命名空间</span><br>              <span class="hljs-attr">valueFrom:</span><br>                <span class="hljs-attr">fieldRef:</span><br>                  <span class="hljs-attr">fieldPath:</span> <span class="hljs-string">metadata.namespace</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">MY_POD_IP</span><br>              <span class="hljs-attr">valueFrom:</span><br>                <span class="hljs-attr">fieldRef:</span><br>                  <span class="hljs-attr">fieldPath:</span> <span class="hljs-string">status.podIP</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">MY_IN_SERVICE_NAME</span> <span class="hljs-comment"># 因为pod 通过域名互相访问，需要使用headless 服务名称</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">registry-service</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">EUREKA_APPLICATION_NAME</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;registry&quot;</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">EUREKA_REPLICAS</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;2&quot;</span><br><span class="hljs-string">...</span><br></code></pre></td></tr></table></figure>
+
+<p>3.在application.yml中配置</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs yml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">application:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">$&#123;EUREKA_APPLICATION_NAME:registry&#125;</span><br><span class="hljs-attr">server:</span><br>  <span class="hljs-attr">port:</span> <span class="hljs-string">$&#123;REGISTRY_PORT:8022&#125;</span><br><span class="hljs-attr">eureka:</span><br>  <span class="hljs-attr">client:</span><br>    <span class="hljs-attr">service-url:</span><br>      <span class="hljs-attr">defaultZone:</span> <span class="hljs-string">$&#123;EUREKA_URL_LIST:http://localhost:8022/eureka&#125;</span> <span class="hljs-comment"># 指定服务中心 eureka server的地址</span><br>    <span class="hljs-attr">register-with-eureka:</span> <span class="hljs-string">$&#123;BOOL_REGISTER:true&#125;</span> <span class="hljs-comment"># 是否把服务中心本身当做eureka client 注册。默认为true</span><br>    <span class="hljs-attr">fetch-registry:</span> <span class="hljs-string">$&#123;BOOL_FETCH:true&#125;</span> <span class="hljs-comment"># 是否拉取 eureka server 的注册信息。 默认为true</span><br>  <span class="hljs-attr">instance:</span><br>    <span class="hljs-attr">hostname:</span> <span class="hljs-string">$&#123;MY_POD_NAME:peer1&#125;</span> <span class="hljs-comment">#服务主机名</span><br>    <span class="hljs-attr">appname:</span> <span class="hljs-string">$&#123;spring.application.name&#125;</span> <span class="hljs-comment">#服务名称，默认为 unknow 这里直接取 spring.application.name</span><br>    <span class="hljs-attr">prefer-ip-address:</span> <span class="hljs-literal">false</span> <span class="hljs-comment">#默认为true 表示为使用IP注册 可用副本（available-replicas）会出现在不可用unavailable-replicas中，因此设为false</span><br></code></pre></td></tr></table></figure>
+
+<p>这里我们选择让镜像打包脚本把这个文件替换到registry的依赖目录下</p>
+<p>把<code>application.yml</code>放在config目录下</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210630191106294.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>修改打包脚本中的<code>modify_projectName_registry_service</code>函数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs shell">modify_projectName_registry_service()<br>&#123;<br>	echo &quot;INFO&quot; &quot;begin modify registry service ...&quot;<br>    application=$&#123;CONF_PATH&#125;/application.yml<br>    application_common=$&#123;CONF_PATH&#125;/application-common.yml<br>    application_broker=$&#123;CONF_PATH&#125;/application-broker.yml<br>    application_path=$&#123;REGISTRY_USER_HOME&#125;/tomcat/webapps/$&#123;projectName_REGISTRY_SERVICE&#125;/WEB-INF/classes/<br><br>    \sudo cp -rf $&#123;application&#125; $&#123;application_path&#125;<br>    sudo cp $&#123;application_common&#125; $&#123;application_path&#125;<br>    sudo cp $&#123;application_broker&#125; $&#123;application_path&#125;<br>	  file_application_yml=$&#123;REGISTRY_USER_HOME&#125;/tomcat/webapps/$&#123;projectName_REGISTRY_SERVICE&#125;/WEB-INF/classes/application.yml<br>    sudo su - $&#123;REGISTRY_USER&#125; &lt;&lt;EOF<br><br>    if [[ ! -f $&#123;file_application_yml&#125; ]];then<br>        echo &quot;[ file $&#123;file_application_yml&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br><br>EOF<br>  sudo chown -R $&#123;REGISTRY_USER&#125;:$&#123;REGISTRY_USER_GROUP_NAME&#125; $&#123;REGISTRY_USER_HOME&#125;<br>	echo &quot;INFO&quot; &quot;successful modify registry service ...&quot;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>重新打包镜像，重命名并推送至我们之前搭建好的私仓，注意版本要与我们资源文件中的设置一致。</p>
+<p>k8s的registry资源配置文件<code>registry-sts.yml</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs shell">apiVersion: v1<br>kind: Namespace<br>metadata:<br>  name: projectName<br>---<br><span class="hljs-meta">#</span><span class="bash"> 有状态pod，会自动根据metadata.name及实例数量生产xxx-0,xxx-1的pod</span><br>apiVersion: apps/v1<br>kind: StatefulSet<br>metadata:<br>  name: registry<br>  namespace: projectName<br>spec:<br>  serviceName: registry-service<br>  replicas: 2<br>  selector:<br>    matchLabels:<br>      app: registry<br>  template:<br>    metadata:<br>      labels:<br>        app: registry<br>    spec:<br>      containers:<br>        - name: registry<br>          image: 192.168.60.128:5000/registry:1.0.0 # 配置镜像路径，也就是我们刚才push好的镜像<br>          imagePullPolicy: Always #配置总是拉取镜像，可以配置成如有本地有就不拉取。<br>          ports:<br>            - containerPort: 8022<br>          env: # 环境变量设置<br>            - name: MY_POD_NAME<br>              valueFrom:<br>                fieldRef:<br>                  fieldPath: metadata.name # 取值metadata.name，这里注意，statefulset类型的对象取到的是有-0,-1序号后缀的<br>            - name: EUREKA_URL_LIST #环境变量，这个变量在我们项目的配置文件中有配置,作用是配置eureka集群的所有地址，注意相同namespace底下使用dns访问时，不需要配置全路径（全路径为podname.headless-name.namespace.cluster.svc.local),只要到podname.headless-name<br>              value: &quot;http://registry-0.registry-service:8022/eureka,http://registry-0.registry-service:8022/eureka&quot;<br>            - name: REGISTRY_PORT<br>              value: 8022<br>            - name: EUREKA_INSTANCE_HOSTNAME #环境变量，这个变量在我们项目的配置文件中有配置，作用是指定注册到eureka集群中的hostname<br>              value: $&#123;MY_POD_NAME&#125;.registry-service<br>            - name: MY_NODE_NAME<br>              valueFrom:<br>                fieldRef:<br>                  fieldPath: spec.nodeName<br>            - name: MY_POD_NAMESPACE # POD当前命名空间<br>              valueFrom:<br>                fieldRef:<br>                  fieldPath: metadata.namespace<br>            - name: MY_POD_IP<br>              valueFrom:<br>                fieldRef:<br>                  fieldPath: status.podIP<br>            - name: MY_IN_SERVICE_NAME # 因为pod 通过域名互相访问，需要使用headless 服务名称<br>              value: registry-service<br>            - name: EUREKA_APPLICATION_NAME<br>              value: &quot;registry&quot;<br>            - name: EUREKA_REPLICAS<br>              value: &quot;3&quot;<br>  podManagementPolicy: &quot;Parallel&quot; # 以并行方式创建pod，默认是串行的<br>---<br><span class="hljs-meta">#</span><span class="bash"> file name eureka.yaml</span><br><span class="hljs-meta">#</span><span class="bash"> headless service</span><br>apiVersion: v1<br>kind: Service<br>metadata:<br>  name: registry-service<br>  namespace: projectName<br>  labels:<br>    app: registry<br>spec:<br>  clusterIP: None<br>  ports:<br>    - port: 8022<br>      name: registry-svc-port<br>      targetPort: 8022<br>  selector:<br>    app: registry<br></code></pre></td></tr></table></figure>
+
+<p>执行 kubectl create命令后，便可以得到一个eureka集群。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 k8s-projectName]# kubectl create -f registry-sts.yml<br>namespace/projectName created<br>statefulset.apps/registry created<br>service/registry-service created<br></code></pre></td></tr></table></figure>
+
+<h4 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">可以看到我们2个POD都是健康状态了</span><br>[root@master01 k8s-projectName]# kubectl get pods -n projectName<br>NAME                   READY   STATUS    RESTARTS   AGE<br>registry-0   1/1     Running   0          7h37m<br>registry-1   1/1     Running   0          7h37m<br><span class="hljs-meta">#</span><span class="bash">进入任意POD 查看一下eureka portal</span><br>[root@master01 k8s-projectName]# kubectl exec -it registry-0 -n projectName /bin/bash<br>kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.<br>[registry@registry-0 /]$ curl localhost:8022<br>...<br>        &lt;tbody&gt;<br>              &lt;tr&gt;<br>                &lt;td&gt;&lt;b&gt;REGISTRY&lt;/b&gt;&lt;/td&gt;<br>                &lt;td&gt;<br>                    &lt;b&gt;n/a&lt;/b&gt; (2)<br>                &lt;/td&gt;<br>                &lt;td&gt;<br>                    &lt;b&gt;&lt;/b&gt; (2)<br>                &lt;/td&gt;<br>                &lt;td&gt;<br>                    &lt;b&gt;UP&lt;/b&gt; (2) -<br>                        &lt;a href=&quot;http://registry-1.registry-service:8022/actuator/info&quot; target=&quot;_blank&quot;&gt;registry-1.registry-service.projectName.svc.cluster.local:registry:8022&lt;/a&gt;<br>,<br>                        &lt;a href=&quot;http://registry-0.registry-service:8022/actuator/info&quot; target=&quot;_blank&quot;&gt;registry-0.registry-service.projectName.svc.cluster.local:registry:8022&lt;/a&gt;<br><br>                &lt;/td&gt;<br>              &lt;/tr&gt;<br><br>        &lt;/tbody&gt;<br>      &lt;/table&gt;<br>...<br></code></pre></td></tr></table></figure>
+
+<h5 id="可以看到我们两个eureka实例已经相互注册了，那么微服务的注册功能我们后面还需要对微服务进行微调。"><a href="#可以看到我们两个eureka实例已经相互注册了，那么微服务的注册功能我们后面还需要对微服务进行微调。" class="headerlink" title="可以看到我们两个eureka实例已经相互注册了，那么微服务的注册功能我们后面还需要对微服务进行微调。"></a>可以看到我们两个eureka实例已经相互注册了，那么微服务的注册功能我们后面还需要对微服务进行微调。</h5><h4 id="微服务注册"><a href="#微服务注册" class="headerlink" title="微服务注册"></a>微服务注册</h4><p>将一般的微服务注册到eureka集群中，可以通过eureka的service来访问eureka，即：将eureka.client.serviceUrl.defaultZone设置成register-server.test.svc.cluster.local，使用了k8s的service负载均衡，将服务注册到任意一个活着的eureka上，然后eureka集群内部会做同步，最终注册到eureka集群内部所有eureka上</p>
+<hr>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">[registry@registry-0 logs]$ cat catalina.log<br>2021-06-30 03:44:59,768 [main] WARN  org.apache.catalina.security.SecurityListener- No umask setting was found in system property [org.apache.catalina.security.SecurityListener.UMASK]. However, it appears Tomcat is running on a platform that supports umask. The system property is typically set in CATALINA_HOME/bin/catalina.sh. The Lifecycle listener org.apache.catalina.security.SecurityListener (usually configured in CATALINA_BASE/conf/server.xml) expects a umask at least as restrictive as [0027]<br>2021-06-30 03:44:59,770 [main] INFO  org.apache.catalina.core.AprLifecycleListener- The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: /usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib<br>2021-06-30 03:45:00,506 [main] INFO  org.apache.coyote.http11.Http11NioProtocol- Initializing ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-06-30 03:45:00,554 [main] INFO  org.apache.tomcat.util.net.NioSelectorPool- Using a shared selector for servlet write/read<br>2021-06-30 03:45:00,561 [main] INFO  org.apache.catalina.startup.Catalina- Initialization processed in 2475 ms<br>2021-06-30 03:45:00,603 [main] INFO  org.apache.catalina.core.StandardService- Starting service Catalina<br>2021-06-30 03:45:00,603 [main] INFO  org.apache.catalina.core.StandardEngine- Starting Servlet Engine:<br>2021-06-30 03:45:02,199 [localhost-startStop-1] WARN  org.apache.catalina.startup.ContextConfig- catalina annotation was enabled<br>2021-06-30 03:45:58,222 [main] INFO  org.apache.coyote.http11.Http11NioProtocol- Starting ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-06-30 03:45:58,266 [main] INFO  org.apache.catalina.startup.Catalina- Server startup in 57704 ms<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/image-20210713095957693.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell">apiVersion: v1<br>kind: Service<br>metadata:<br>  name: registry-service-o<br>  namespace: projectName<br>  labels:<br>    app: registry<br>spec:<br>  type: NodePort<br>  ports:<br>    - port: 8022<br>      name: registry-svc-port<br>      targetPort: 8022<br>      nodePort: 30022<br>  selector:<br>    app: registry<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 k8s-projectName]# kubectl get svc -A<br>...<br>projectName              registry-service            ClusterIP   None          &lt;none&gt;        8022/TCP                 16h<br>projectName              registry-service-o          NodePort    10.1.42.201   &lt;none&gt;        8022:30022/TCP           6m33s<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="问题3"><a href="#问题3" class="headerlink" title="问题3"></a>问题3</h3><blockquote>
+<p>k8s有几种容器持久化方案，这里我们使用的是基于nfs的PV/PVC，其余的方案这里暂时不讨论了。</p>
+<p>这块我们放在K8s里面介绍，链接待更新…</p>
+</blockquote>
+<h4 id="安装NFS"><a href="#安装NFS" class="headerlink" title="安装NFS"></a>安装NFS</h4><p>在作为NFS服务的节点执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@localhost ~]# yum -y install nfs-utils  rpcbind<br></code></pre></td></tr></table></figure>
+
+<h4 id="创建共享目录"><a href="#创建共享目录" class="headerlink" title="创建共享目录"></a>创建共享目录</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@localhost ~]# mkdir /nfsdata<br></code></pre></td></tr></table></figure>
+
+<h4 id="创建共享目录的权限"><a href="#创建共享目录的权限" class="headerlink" title="创建共享目录的权限"></a><strong>创建共享目录的权限</strong></h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master ~]# vi /etc/exports<br>/nfsdata *(rw,sync,no_root_squash)<br></code></pre></td></tr></table></figure>
+
+<h4 id="开启nfs和rpcbind"><a href="#开启nfs和rpcbind" class="headerlink" title="开启nfs和rpcbind"></a>开启nfs和rpcbind</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master ~]# systemctl start nfs-server.service <br>[root@master ~]# systemctl start rpcbind<br></code></pre></td></tr></table></figure>
+
+<h4 id="测试一下"><a href="#测试一下" class="headerlink" title="测试一下"></a>测试一下</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@localhost /]# showmount -e<br>Export list for localhost.localdomain:<br>/nfsdata *<br></code></pre></td></tr></table></figure>
+
+<h4 id="在master-和其他节点执行"><a href="#在master-和其他节点执行" class="headerlink" title="在master 和其他节点执行"></a>在master 和其他节点执行</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">yum install -y nfs-utils<br></code></pre></td></tr></table></figure>
+
+<h4 id="设置tomcat的日志输出路径"><a href="#设置tomcat的日志输出路径" class="headerlink" title="设置tomcat的日志输出路径"></a>设置tomcat的日志输出路径</h4><p>更改tomcat的日志输出格式通过pod名和pod命名空间变量，唯一标识输出文件名。</p>
+<p>给所有的log前缀加上 <code>$&#123;my.pod.name&#125;_$&#123;my.pod.namespace&#125;_</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><code class="hljs xml">[vincent@node02 conf]$ cat log4j.xml<br><span class="hljs-meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">log4j</span>:configuration <span class="hljs-meta-keyword">SYSTEM</span> <span class="hljs-meta-string">&quot;log4j.dtd&quot;</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">log4j:configuration</span> <span class="hljs-attr">xmlns:log4j</span>=<span class="hljs-string">&#x27;http://jakarta.apache.org/log4j/&#x27;</span> &gt;</span><br><br>        <span class="hljs-comment">&lt;!--  tomcat log--&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;CATALINA&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.huawei.openas.common.log.appender.RollingFileAppenderMod&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;File&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;$&#123;catalina.base&#125;/logs/$&#123;my.pod.name&#125;_$&#123;my.pod.namespace&#125;_catalina.log&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Append&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;true&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Encoding&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxFileSize&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10MB&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxBackupIndex&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">layout</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.apache.log4j.PatternLayout&quot;</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;ConversionPattern&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;%d [%t] %-5p %c- %m%n&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">layout</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span><br><br>        <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;STD_OUT_REDIRECTOR&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.huawei.openas.common.log.appender.LazyStdOutRollingFileAppender&quot;</span>&gt;</span><br>     <span class="hljs-tag">&lt;<span class="hljs-name">errorHandler</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.huawei.openas.common.log.appender.CatalinaErrorhandler&quot;</span>/&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;File&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;$&#123;catalina.base&#125;/logs/$&#123;my.pod.name&#125;_$&#123;my.pod.namespace&#125;_catalina.out&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Append&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;true&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Encoding&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxFileSize&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10MB&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxBackupIndex&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">layout</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.apache.log4j.PatternLayout&quot;</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;ConversionPattern&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;%d [%t] %-5p %m%n&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">layout</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span><br><br>        <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;LOCALHOST&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.huawei.openas.common.log.appender.RollingFileAppenderMod&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;File&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;$&#123;catalina.base&#125;/logs/$&#123;my.pod.name&#125;_$&#123;my.pod.namespace&#125;_localhost.log&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Append&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;true&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Encoding&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxFileSize&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10MB&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxBackupIndex&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">layout</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.apache.log4j.PatternLayout&quot;</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;ConversionPattern&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;%d [%t] %-5p %c- %m%n&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">layout</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span><br><br>        <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;CONSOLE&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.apache.log4j.ConsoleAppender&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Encoding&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">layout</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.apache.log4j.PatternLayout&quot;</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;ConversionPattern&quot;</span></span><br><span class="hljs-tag">                                <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;%d %n%p: %m%n&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">layout</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span><br><br>        <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;SWITCHABLE_CONSOLE_APPENDER&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.huawei.openas.common.log.appender.SwitchableConsoleAppender&quot;</span> /&gt;</span><br><br>        <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;accesslog&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.huawei.openas.common.log.appender.RollingFileAppenderMod&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;File&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;$&#123;catalina.base&#125;/logs/$&#123;my.pod.name&#125;_$&#123;my.pod.namespace&#125;_localhost_access.log&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Append&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;true&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Encoding&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxFileSize&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;100MB&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxBackupIndex&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">layout</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.apache.log4j.PatternLayout&quot;</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;ConversionPattern&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;%d [%t] %-5p %c- %m%n&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">layout</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span><br><br>        <span class="hljs-comment">&lt;!--  DBPool log (Custom Appender)--&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;dbpool&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.huawei.openas.common.log.appender.LazyRollingFileAppenderMod&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;ModuleCheckerClass&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;com.huawei.bme.dbconnector.dbpool.PoolDataSource&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;File&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;$&#123;catalina.base&#125;/logs/dbpool/$&#123;my.pod.name&#125;_$&#123;my.pod.namespace&#125;_dbpool.log&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Append&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;true&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Encoding&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxFileSize&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10MB&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxBackupIndex&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">layout</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.apache.log4j.PatternLayout&quot;</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;ConversionPattern&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;|%-5p|%t|JTA &gt; %m (%l)%n&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">layout</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span><br><br>        <span class="hljs-comment">&lt;!--  xa transaction recovery log (Custom Appender)--&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;xa_transaction_recovery&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.huawei.openas.common.log.appender.RollingFileAppenderMod&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;File&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;$&#123;catalina.base&#125;/logs/dbpool/$&#123;my.pod.name&#125;_$&#123;my.pod.namespace&#125;_xa_transaction.log&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Append&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;true&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Encoding&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxFileSize&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10MB&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxBackupIndex&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">layout</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.apache.log4j.PatternLayout&quot;</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;ConversionPattern&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;|%-5p|%t|JTA &gt; %m (%l)%n&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">layout</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span><br><br>        <span class="hljs-comment">&lt;!--  Mbean log--&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;mbTool&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.huawei.openas.common.log.appender.RollingFileAppenderMod&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;File&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;$&#123;catalina.base&#125;/logs/mbeanTool/$&#123;my.pod.name&#125;_$&#123;my.pod.namespace&#125;_mbeanTool.log&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Append&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;true&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Encoding&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxFileSize&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10MB&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxBackupIndex&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">layout</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.apache.log4j.PatternLayout&quot;</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;ConversionPattern&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;|%-5p|%t|MBeanTool &gt; %m (%l)%n&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">layout</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span><br><br><br>        <span class="hljs-comment">&lt;!--  monitor log--&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;monitor&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.huawei.openas.common.log.appender.RollingFileAppenderMod&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;File&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;$&#123;catalina.base&#125;/logs/monitor/$&#123;my.pod.name&#125;_$&#123;my.pod.namespace&#125;_monitor.log&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Append&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;true&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Encoding&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxFileSize&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10MB&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;MaxBackupIndex&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;10&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">layout</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.apache.log4j.PatternLayout&quot;</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;ConversionPattern&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;|%-5p|%t|Monitor &gt; %m (%l)%n&quot;</span> /&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">layout</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span><br><br>        <span class="hljs-comment">&lt;!--  sessionkeeper log--&gt;</span><br>        <span class="hljs-comment">&lt;!--&lt;appender name=&quot;sessionkeeper&quot; class=&quot;org.apache.log4j.RollingFileAppender&quot;&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;File&quot; value=&quot;$&#123;catalina.base&#125;/logs/sessionkeeper/sessionkeeper.log&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;Append&quot; value=&quot;true&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;Encoding&quot; value=&quot;UTF-8&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;MaxFileSize&quot; value=&quot;10MB&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;MaxBackupIndex&quot; value=&quot;10&quot; /&gt;</span><br><span class="hljs-comment">                &lt;layout class=&quot;org.apache.log4j.PatternLayout&quot;&gt;</span><br><span class="hljs-comment">                        &lt;param name=&quot;ConversionPattern&quot; value=&quot;%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;|%-5p|%t|Monitor &gt; %m (%l)%n&quot; /&gt;</span><br><span class="hljs-comment">                &lt;/layout&gt;</span><br><span class="hljs-comment">        &lt;/appender&gt;--&gt;</span><br><br>        <span class="hljs-comment">&lt;!--  dcs log--&gt;</span><br>        <span class="hljs-comment">&lt;!--&lt;appender name=&quot;dcs&quot; class=&quot;org.apache.log4j.RollingFileAppender&quot;&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;File&quot; value=&quot;$&#123;catalina.base&#125;/logs/dcs/dcs.log&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;Append&quot; value=&quot;true&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;Encoding&quot; value=&quot;UTF-8&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;MaxFileSize&quot; value=&quot;10MB&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;MaxBackupIndex&quot; value=&quot;10&quot; /&gt;</span><br><span class="hljs-comment">                &lt;layout class=&quot;org.apache.log4j.PatternLayout&quot;&gt;</span><br><span class="hljs-comment">                        &lt;param name=&quot;ConversionPattern&quot; value=&quot;%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;|%-5p|%t|Monitor &gt; %m (%l)%n&quot; /&gt;</span><br><span class="hljs-comment">                &lt;/layout&gt;</span><br><span class="hljs-comment">        &lt;/appender&gt;--&gt;</span><br>        <span class="hljs-comment">&lt;!--  coherence log--&gt;</span><br>        <span class="hljs-comment">&lt;!--&lt;appender name=&quot;coherenceMonitor&quot; class=&quot;org.apache.log4j.RollingFileAppender&quot;&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;File&quot; value=&quot;$&#123;catalina.base&#125;/logs/coherence/coherence.log&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;Append&quot; value=&quot;true&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;Encoding&quot; value=&quot;UTF-8&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;MaxFileSize&quot; value=&quot;10MB&quot; /&gt;</span><br><span class="hljs-comment">                &lt;param name=&quot;MaxBackupIndex&quot; value=&quot;10&quot; /&gt;</span><br><span class="hljs-comment">                &lt;layout class=&quot;org.apache.log4j.PatternLayout&quot;&gt;</span><br><span class="hljs-comment">                        &lt;param name=&quot;ConversionPattern&quot; value=&quot;%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;|%-5p|%t|Monitor &gt; %m (%l)%n&quot; /&gt;</span><br><span class="hljs-comment">                &lt;/layout&gt;</span><br><span class="hljs-comment">        &lt;/appender&gt;--&gt;</span><br>...<br></code></pre></td></tr></table></figure>
+
+<p>通过容器传入的变量在tomcat中并不能直接使用,需要在tomcat的启动脚本中，在java的启动命令中加上-D选项。找到所有有-Dcatalina.base=”&quot;$CATALINA_BASE&quot;“ 的地方加上</p>
+<p><code>-Dmy.pod.name=&quot;$MY_POD_NAME&quot; -Dmy.pod.namespace=&quot;$MY_POD_NAMESPACE&quot;</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell">...<br><span class="hljs-meta">#</span><span class="bash">例如</span><br>elif [ &quot;$1&quot; = &quot;configtest&quot; ] ; then<br>    JAVA_OPTS=&quot;$JAVA_OPTS &quot;-Dopenas.catalina.out.log.file.control=off<br>    eval &quot;\&quot;$_RUNJAVA\&quot;&quot; $JAVA_OPTS \<br>      -D$ENDORSED_PROP=&quot;\&quot;$JAVA_ENDORSED_DIRS\&quot;&quot; \<br>      -classpath &quot;\&quot;$CLASSPATH\&quot;&quot; \<br>      -Dcatalina.base=&quot;\&quot;$CATALINA_BASE\&quot;&quot; \<br>      -Dcatalina.home=&quot;\&quot;$CATALINA_HOME\&quot;&quot; \<br>      -Dmy.pod.name=&quot;$MY_POD_NAME&quot; \<br>      -Dmy.pod.namespace=&quot;$MY_POD_NAMESPACE&quot; \<br><br>...<br></code></pre></td></tr></table></figure>
+
+<h4 id="修改构建脚本"><a href="#修改构建脚本" class="headerlink" title="修改构建脚本"></a>修改构建脚本</h4><p>将<code>catalina.sh</code>与<code>log4j.xml</code>文件夹添加到dockerfile根目录下的config目录</p>
+<p>在之前的镜像安装脚本<code>install_projectName_registry.sh</code>中添加</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"> ...<br><span class="hljs-meta">  #</span><span class="bash">copy log4j.xml to user home openas config</span><br>    sudo cp $&#123;CONF_PATH&#125;/log4j.xml $&#123;USER_HOME&#125;/tomcat/conf<br>    if [[ $? -ne 0 ]];then<br>        echo &quot;ERROR&quot; &quot;[ cp $&#123;CONF_PATH&#125;/web.xml $&#123;USER_HOME&#125;/tomcat/conf ] failed&quot;<br>        return 1<br>    fi<br><br>    #copy catalina.sh to user home openas bin<br>    sudo cp $&#123;CONF_PATH&#125;/catalina.sh $&#123;USER_HOME&#125;/tomcat/bin<br>    if [[ $? -ne 0 ]];then<br>        echo &quot;ERROR&quot; &quot;[ cp $&#123;CONF_PATH&#125;/web.xml $&#123;USER_HOME&#125;/tomcat/bin ] failed&quot;<br>        return 1<br>    fi<br>...<br></code></pre></td></tr></table></figure>
+
+<p>为了方便，把push动作也放到镜像打包脚本<code>build_registry_image.sh</code>中,镜像版本和URL解耦为变量。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell">pushdImage()&#123;<br><br>    docker tag $&#123;IMAGE_NAME&#125;:$&#123;IMAGE_VERSION&#125; $&#123;DOCKER_REGISTRY_URL&#125;/$&#123;IMAGE_NAME&#125;:$&#123;IMAGE_VERSION&#125; || return 1<br><br>    if [[ $? -ne 0 ]];then<br>       LOG &quot;ERROR&quot; &quot;$&#123;DOCKER_REGISTRY_URL&#125;/$&#123;IMAGE_NAME&#125;:$&#123;IMAGE_VERSION&#125;Image tag  failed&quot;<br>        return 1<br>    fi<br><br>    docker push $&#123;DOCKER_REGISTRY_URL&#125;/$&#123;IMAGE_NAME&#125;:$&#123;IMAGE_VERSION&#125; || return 1<br><br>    if [[ $? -ne 0 ]];then<br>        LOG &quot;ERROR&quot; &quot;$&#123;DOCKER_REGISTRY_URL&#125;/$&#123;IMAGE_NAME&#125;:$&#123;IMAGE_VERSION&#125;Image push  failed&quot;<br>        return 1<br>    fi<br><br>&#125;<br>...<br>    pushdImage || return 1<br><br>    echo &quot;=======================================================================&quot;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>重新打包并push镜像</p>
+<h4 id="修改k8s资源文件"><a href="#修改k8s资源文件" class="headerlink" title="修改k8s资源文件"></a>修改k8s资源文件</h4><p>为registry服务添加PVC和PV，这里我们抽象出一个公共资源文件<code>k8s-env.yml</code>用于准备命名空间和pv等。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs shell">apiVersion: v1<br>kind: Namespace<br>metadata:<br>  name: projectName<br>---<br>apiVersion: v1<br>kind: PersistentVolume<br>metadata:<br>  name: registry-nfs-pv<br>  namespace: projectName<br>  labels:<br>    pv: registry-nfs-pv<br>spec:<br>  capacity: #pv容量的大小<br>    storage: 1024Mi<br>  accessModes: #访问pv的模式<br>    - ReadWriteMany<br>  persistentVolumeReclaimPolicy: Recycle<br>  storageClassName: nfs  #持久资源的类型<br>  nfs:<br>    # FIXME: use the right IP<br>    server: 192.168.60.144<br>    path: &quot;/nfsdata/registry/tomcat/&quot;<br>---<br>apiVersion: v1 #这里先定义好core的pv，后面我们会用到<br>kind: PersistentVolume<br>metadata:<br>  name: core-nfs-pv<br>  namespace: projectName<br>  labels:<br>    pv: core-nfs-pv<br>spec:<br>  capacity: #pv容量的大小<br>    storage: 1024Mi<br>  accessModes: #访问pv的模式<br>    - ReadWriteMany<br>  persistentVolumeReclaimPolicy: Recycle<br>  storageClassName: nfs<br>  nfs:<br>    # FIXME: use the right IP<br>    server: 192.168.60.144<br>    path: &quot;/nfsdata/core/&quot;<br></code></pre></td></tr></table></figure>
+
+<p>在<code>regitsry-sts.yml</code>添加</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><code class="hljs shell">kind: PersistentVolumeClaim  #pvc <br>apiVersion: v1<br>metadata:<br>  name: registry-nfs-pvc<br>  namespace: projectName<br>spec:<br>  accessModes:<br>    - ReadWriteMany<br>  resources:<br>    requests:<br>      storage: 1000Mi   #不能大于绑定pv的容量<br>  storageClassName: nfs #需要和pv的sc类型一致，否则会绑定失败<br>  selector:<br>    matchLabels:<br>      pv: registry-nfs-pv<br>---<br><span class="hljs-meta">#</span><span class="bash"> 有状态pod，会自动根据metadata.name及实例数量生产xxx-0,xxx-1的pod</span><br>apiVersion: apps/v1<br>kind: StatefulSet<br>metadata:<br>  name: registry<br>  namespace: projectName<br>spec:<br>  serviceName: registry-service<br>  replicas: 2<br>  selector:<br>    matchLabels:<br>      app: registry<br>  template:<br>    metadata:<br>      labels:<br>        app: registry<br>    spec:<br>      containers:<br>        - name: registry<br>          image: 192.168.60.128:5000/registry:1.0.0 # 配置镜像路径，也就是我们刚才push好的镜像<br>          imagePullPolicy: Always<br>          ports:<br>            - containerPort: 8022<br>          volumeMounts:<br>            - mountPath: /data01/registry/tomcat/logs<br>              name: registry-data<br>          env: # 环境变量设置<br>            - name: MY_POD_NAME<br>              valueFrom:<br>                fieldRef:<br>                  fieldPath: metadata.name # 取值metadata.name，这里注意，statefulset类型的对象取到的是有-0,-1序号后缀的<br>            - name: EUREKA_URL_LIST #环境变量，这个变量在我们项目的配置文件中有配置,作用是配置eureka集群的所有地址，注意相同namespace底下使用dns访问时，不需要配置全路径（全路径为podname.headless-name.namespace.cluster.svc.local),只要到podname.headless-name<br>              value: &quot;http://registry-0.registry-service:8022/eureka,http://registry-0.registry-service:8022/eureka&quot;<br>            - name: REGISTRY_PORT<br>              value: &quot;8022&quot;<br>            - name: EUREKA_INSTANCE_HOSTNAME #环境变量，这个变量在我们项目的配置文件中有配置，作用是指定注册到eureka集群中的hostname<br>              value: $&#123;MY_POD_NAME&#125;.registry-service<br>            - name: MY_NODE_NAME<br>              valueFrom:<br>                fieldRef:<br>                  fieldPath: spec.nodeName<br>            - name: MY_POD_NAMESPACE # POD当前命名空间<br>              valueFrom:<br>                fieldRef:<br>                  fieldPath: metadata.namespace<br>            - name: MY_POD_IP<br>              valueFrom:<br>                fieldRef:<br>                  fieldPath: status.podIP<br>            - name: MY_IN_SERVICE_NAME # 因为pod 通过域名互相访问，需要使用headless 服务名称<br>              value: registry-service<br>            - name: EUREKA_APPLICATION_NAME<br>              value: &quot;registry&quot;<br>            - name: EUREKA_REPLICAS<br>              value: &quot;2&quot;<br>      volumes:<br>        - name: registry-data<br>          persistentVolumeClaim:<br>            claimName: registry-nfs-pvc<br>  podManagementPolicy: &quot;Parallel&quot; # 以并行方式创建pod，默认是串行的<br>---<br><span class="hljs-meta">#</span><span class="bash"> file name eureka.yaml</span><br><span class="hljs-meta">#</span><span class="bash"> headless service</span><br>apiVersion: v1<br>kind: Service<br>metadata:<br>  name: registry-service<br>  namespace: projectName<br>  labels:<br>    app: registry<br>spec:<br>  clusterIP: None<br>  ports:<br>    - port: 8022<br>      name: registry-svc-port<br>      targetPort: 8022<br>  selector:<br>    app: registry<br><br></code></pre></td></tr></table></figure>
+
+<p>清除全部资源并重新创建k8s资源，注意依赖关系先删除<code>registry-sts.yml</code>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 k8s-projectName]kubectl delete -f registry-sts.yml<br>[root@master01 k8s-projectName]kubectl delete -f k8s-env.yml<br>[root@master01 k8s-projectName]kubectl create k8s-env.yml<br>[root@master01 k8s-projectName]kubectl create registry-sts.yml<br></code></pre></td></tr></table></figure>
+
+<h4 id="检查"><a href="#检查" class="headerlink" title="检查"></a>检查</h4><h5 id="pv"><a href="#pv" class="headerlink" title="pv"></a>pv</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 k8s-projectName]# kubectl get pv -A<br>NAME                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM                                  STORAGECLASS   REASON   AGE<br>core-nfs-pv       1Gi        RWX            Recycle          Available                                          nfs                     23m<br>registry-nfs-pv   1Gi        RWX            Recycle          Bound       projectName/registry-nfs-pvc   nfs                     23m<br>[root@master01 k8s-projectName]# kubectl describe pv/registry-nfs-pv -n projectName<br>Name:            registry-nfs-pv<br>Labels:          pv=registry-nfs-pv<br>Annotations:     pv.kubernetes.io/bound-by-controller: yes<br>Finalizers:      [kubernetes.io/pv-protection]<br>StorageClass:    nfs<br>Status:          Bound<br>Claim:           projectName/registry-nfs-pvc<br>Reclaim Policy:  Recycle<br>Access Modes:    RWX<br>VolumeMode:      Filesystem<br>Capacity:        1Gi<br>Node Affinity:   &lt;none&gt;<br>Message:<br>Source:<br>    Type:      NFS (an NFS mount that lasts the lifetime of a pod)<br>    Server:    192.168.60.144<br>    Path:      /nfsdata/registry/tomcat/<br>    ReadOnly:  false<br>Events:        &lt;none&gt;<br></code></pre></td></tr></table></figure>
+
+<h5 id="pvc"><a href="#pvc" class="headerlink" title="pvc"></a>pvc</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 k8s-projectName]# kubectl get pvc -A<br>NAMESPACE   NAME                         STATUS   VOLUME                      CAPACITY   ACCESS MODES   STORAGECLASS   AGE<br>projectName   registry-nfs-pvc   Bound    registry-nfs-pv   1Gi        RWX            nfs            26m<br>[root@master01 k8s-projectName]# kubectl describe pvc/registry-nfs-pvc -n projectName<br>Name:          registry-nfs-pvc<br>Namespace:     projectName<br>StorageClass:  nfs<br>Status:        Bound<br>Volume:        registry-nfs-pv<br>Labels:        &lt;none&gt;<br>Annotations:   pv.kubernetes.io/bind-completed: yes<br>               pv.kubernetes.io/bound-by-controller: yes<br>Finalizers:    [kubernetes.io/pvc-protection]<br>Capacity:      1Gi<br>Access Modes:  RWX<br>VolumeMode:    Filesystem<br>Mounted By:    registry-0<br>               registry-1<br>Events:        &lt;none&gt;<br></code></pre></td></tr></table></figure>
+
+<h5 id="pod"><a href="#pod" class="headerlink" title="pod"></a>pod</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 k8s-projectName]# kubectl get pods -n projectName<br>NAME                   READY   STATUS    RESTARTS   AGE<br>registry-0   1/1     Running   0          22m<br>registry-1   1/1     Running   0          27m<br>[root@master01 k8s-projectName]# kubectl describe pods -n projectName<br>Name:         registry-0<br>Namespace:    projectName<br>Priority:     0<br>Node:         node01/192.168.60.129<br>Start Time:   Sat, 03 Jul 2021 04:25:30 -0400<br>Labels:       app=registry<br>              controller-revision-hash=registry-69fb95c8c6<br>              statefulset.kubernetes.io/pod-name=registry-0<br>Annotations:  &lt;none&gt;<br>Status:       Running<br>IP:           10.244.1.25<br>IPs:<br>  IP:           10.244.1.25<br>Controlled By:  StatefulSet/registry<br>Containers:<br>  registry:<br>    Container ID:   docker://1270c57122d4f9effa1e3aa494648942efe1ea050f5b9a51045bdb5d77da90d8<br>    Image:          192.168.60.128:5000/registry:1.0.0<br>    Image ID:       docker-pullable://192.168.60.128:5000/registry@sha256:385e3dffdb979469797150c41d537883c8271308c522208a41d81be6d854299e<br>    Port:           8022/TCP<br>    Host Port:      0/TCP<br>    State:          Running<br>      Started:      Sat, 03 Jul 2021 04:25:33 -0400<br>    Ready:          True<br>    Restart Count:  0<br>    Environment:<br>      MY_POD_NAME:               registry-0 (v1:metadata.name)<br>      EUREKA_URL_LIST:           http://registry-0.registry-service:8022/eureka,http://registry-0.registry-service:8022/eureka<br>      REGISTRY_PORT:             8022<br>      EUREKA_INSTANCE_HOSTNAME:  $&#123;MY_POD_NAME&#125;.registry-service<br>      MY_NODE_NAME:               (v1:spec.nodeName)<br>      MY_POD_NAMESPACE:          projectName (v1:metadata.namespace)<br>      MY_POD_IP:                  (v1:status.podIP)<br>      MY_IN_SERVICE_NAME:        registry-service<br>      EUREKA_APPLICATION_NAME:   registry<br>      EUREKA_REPLICAS:           2<br>    Mounts:<br>      /data01/registry/tomcat/logs from registry-data (rw)<br>      /var/run/secrets/kubernetes.io/serviceaccount from default-token-zrfkg (ro)<br>Conditions:<br>  Type              Status<br>  Initialized       True<br>  Ready             True<br>  ContainersReady   True<br>  PodScheduled      True<br>Volumes:<br>  registry-data:<br>    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)<br>    ClaimName:  registry-nfs-pvc<br>    ReadOnly:   false<br>  default-token-zrfkg:<br>    Type:        Secret (a volume populated by a Secret)<br>    SecretName:  default-token-zrfkg<br>    Optional:    false<br>QoS Class:       BestEffort<br>Node-Selectors:  &lt;none&gt;<br>Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s<br>                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s<br>Events:<br>  Type    Reason     Age   From               Message<br>  ----    ------     ----  ----               -------<br>  Normal  Scheduled  22m   default-scheduler  Successfully assigned projectName/registry-0 to node01<br>  Normal  Pulling    22m   kubelet            Pulling image &quot;192.168.60.128:5000/registry:1.0.0&quot;<br>  Normal  Pulled     22m   kubelet            Successfully pulled image &quot;192.168.60.128:5000/registry:1.0.0&quot; in 48.902535ms<br>  Normal  Created    22m   kubelet            Created container registry<br>  Normal  Started    22m   kubelet            Started container registry<br><br><br>Name:         registry-1<br>Namespace:    projectName<br>Priority:     0<br>Node:         node02/192.168.60.130<br>Start Time:   Sat, 03 Jul 2021 04:20:38 -0400<br>Labels:       app=registry<br>              controller-revision-hash=registry-69fb95c8c6<br>              statefulset.kubernetes.io/pod-name=registry-1<br>Annotations:  &lt;none&gt;<br>Status:       Running<br>IP:           10.244.2.19<br>IPs:<br>  IP:           10.244.2.19<br>Controlled By:  StatefulSet/registry<br>Containers:<br>  registry:<br>    Container ID:   docker://35ca2fd2a67d37b373c37de9ab7ae52bc91c4d1abab87ce3e3b99bc5a5d3bb1a<br>    Image:          192.168.60.128:5000/registry:1.0.0<br>    Image ID:       docker-pullable://192.168.60.128:5000/registry@sha256:385e3dffdb979469797150c41d537883c8271308c522208a41d81be6d854299e<br>    Port:           8022/TCP<br>    Host Port:      0/TCP<br>    State:          Running<br>      Started:      Sat, 03 Jul 2021 04:21:10 -0400<br>    Ready:          True<br>    Restart Count:  0<br>    Environment:<br>      MY_POD_NAME:               registry-1 (v1:metadata.name)<br>      EUREKA_URL_LIST:           http://registry-0.registry-service:8022/eureka,http://registry-0.registry-service:8022/eureka<br>      REGISTRY_PORT:             8022<br>      EUREKA_INSTANCE_HOSTNAME:  $&#123;MY_POD_NAME&#125;.registry-service<br>      MY_NODE_NAME:               (v1:spec.nodeName)<br>      MY_POD_NAMESPACE:          projectName (v1:metadata.namespace)<br>      MY_POD_IP:                  (v1:status.podIP)<br>      MY_IN_SERVICE_NAME:        registry-service<br>      EUREKA_APPLICATION_NAME:   registry<br>      EUREKA_REPLICAS:           2<br>    Mounts:<br>      /data01/registry/tomcat/logs from registry-data (rw)<br>      /var/run/secrets/kubernetes.io/serviceaccount from default-token-zrfkg (ro)<br>Conditions:<br>  Type              Status<br>  Initialized       True<br>  Ready             True<br>  ContainersReady   True<br>  PodScheduled      True<br>Volumes:<br>  registry-data:<br>    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)<br>    ClaimName:  registry-nfs-pvc<br>    ReadOnly:   false<br>  default-token-zrfkg:<br>    Type:        Secret (a volume populated by a Secret)<br>    SecretName:  default-token-zrfkg<br>    Optional:    false<br>QoS Class:       BestEffort<br>Node-Selectors:  &lt;none&gt;<br>Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s<br>                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s<br>Events:<br>  Type    Reason     Age   From               Message<br>  ----    ------     ----  ----               -------<br>  Normal  Scheduled  27m   default-scheduler  Successfully assigned projectName/registry-1 to node02<br>  Normal  Pulling    27m   kubelet            Pulling image &quot;192.168.60.128:5000/registry:1.0.0&quot;<br>  Normal  Pulled     27m   kubelet            Successfully pulled image &quot;192.168.60.128:5000/registry:1.0.0&quot; in 25.890524219s<br>  Normal  Created    27m   kubelet            Created container registry<br>  Normal  Started    27m   kubelet            Started container registry<br><br></code></pre></td></tr></table></figure>
+
+<p>检查两个registry节点日志是否按照设定格式存入nfs服务器对应目录下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@localhost tomcat]# pwd<br>/nfsdata/registry/tomcat<br>[root@localhost tomcat]# ll<br>total 76<br>drwxr-x---. 2 1000 1000   120 Jul  3 04:21 dbpool<br>drwxr-x---. 2 1000 1000   110 Jul  3 04:21 mbeanTool<br>drwxr-x---. 2 1000 1000   106 Jul  3 04:21 monitor<br>-rw-r-----. 1 1000 1000  3942 Jul  3 04:26 registry-0_projectName_catalina.log<br>-rw-r-----. 1 1000 1000 55446 Jul  3 04:51 registry-0_projectName_localhost_access.log<br>-rw-r-----. 1 1000 1000  1397 Jul  3 04:26 registry-0_projectName_localhost.log<br>-rw-r-----. 1 1000 1000  1722 Jul  3 04:22 registry-1_projectName_catalina.log<br>-rw-r-----. 1 1000 1000   211 Jul  3 04:22 registry-1_projectName_localhost_access.log<br>-rw-r-----. 1 1000 1000   351 Jul  3 04:21 registry-1_projectName_localhost.log<br></code></pre></td></tr></table></figure>
+
+<p>可以看到已经日志已经与pod解耦了，我们使用<code>kubectl delete</code>命令模拟下pod挂掉的情况，看之前的日志是否能保留</p>
+<p>我们先看下<code>registry-0</code>节点的日志</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@localhost tomcat]# cat registry-0_projectName_catalina.log<br>...<br>2021-07-03 08:25:35,412 [main] INFO  org.apache.coyote.http11.Http11NioProtocol- Initializing ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-07-03 08:25:35,437 [main] INFO  org.apache.tomcat.util.net.NioSelectorPool- Using a shared selector for servlet write/read<br>2021-07-03 08:25:35,441 [main] INFO  org.apache.catalina.startup.Catalina- Initialization processed in 1308 ms<br>2021-07-03 08:25:35,468 [main] INFO  org.apache.catalina.core.StandardService- Starting service Catalina<br>2021-07-03 08:25:35,469 [main] INFO  org.apache.catalina.core.StandardEngine- Starting Servlet Engine:<br>2021-07-03 08:25:36,051 [localhost-startStop-1] WARN  org.apache.catalina.startup.ContextConfig- catalina annotation was enabled<br>2021-07-03 08:25:55,509 [main] INFO  org.apache.coyote.http11.Http11NioProtocol- Starting ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-07-03 08:25:55,535 [main] INFO  org.apache.catalina.startup.Catalina- Server startup in 20094 ms<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里我们意外发现了个小问题，节点上的时间还没有统一，这个放在后面解决</p>
+</blockquote>
+<p>我们delete一个节点，然后等待k8s重新拉起。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@master01 k8s-projectName]# kubectl delete pod/registry-0 -n projectName<br>pod &quot;registry-0&quot; deleted<br>[root@master01 k8s-projectName]# kubectl get pods -n projectName<br>NAME                   READY   STATUS        RESTARTS   AGE<br>registry-0   0/1     Terminating   0          32m<br>registry-1   1/1     Running       0          37m<br>[root@master01 k8s-projectName]# kubectl get pods -n projectName<br>NAME                   READY   STATUS    RESTARTS   AGE<br>registry-0   1/1     Running   0          5s<br>registry-1   1/1     Running   0          37m<br><br></code></pre></td></tr></table></figure>
+
+<p>nfs日志</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@localhost tomcat]# cat registry-0_projectName_catalina.log<br>...<br>2021-07-03 08:25:35,412 [main] INFO  org.apache.coyote.http11.Http11NioProtocol- Initializing ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-07-03 08:25:35,437 [main] INFO  org.apache.tomcat.util.net.NioSelectorPool- Using a shared selector for servlet write/read<br>2021-07-03 08:25:35,441 [main] INFO  org.apache.catalina.startup.Catalina- Initialization processed in 1308 ms<br>2021-07-03 08:25:35,468 [main] INFO  org.apache.catalina.core.StandardService- Starting service Catalina<br>2021-07-03 08:25:35,469 [main] INFO  org.apache.catalina.core.StandardEngine- Starting Servlet Engine:<br>2021-07-03 08:25:36,051 [localhost-startStop-1] WARN  org.apache.catalina.startup.ContextConfig- catalina annotation was enabled<br>2021-07-03 08:25:55,509 [main] INFO  org.apache.coyote.http11.Http11NioProtocol- Starting ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-07-03 08:25:55,535 [main] INFO  org.apache.catalina.startup.Catalina- Server startup in 20094 ms<br>2021-07-03 08:58:07,932 [Thread-12] INFO  org.apache.coyote.http11.Http11NioProtocol- Pausing ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-07-03 08:58:07,954 [Thread-12] INFO  org.apache.catalina.core.StandardService- Stopping service Catalina<br>2021-07-03 08:58:27,131 [Thread-12] INFO  org.apache.coyote.http11.Http11NioProtocol- Stopping ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-07-03 08:58:27,159 [Thread-12] INFO  org.apache.coyote.http11.Http11NioProtocol- Destroying ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-07-03 08:58:35,284 [main] WARN  org.apache.catalina.security.SecurityListener- No umask setting was found in system property [org.apache.catalina.security.SecurityListener.UMASK]. However, it appears Tomcat is running on a platform that supports umask. The system property is typically set in CATALINA_HOME/bin/catalina.sh. The Lifecycle listener org.apache.catalina.security.SecurityListener (usually configured in CATALINA_BASE/conf/server.xml) expects a umask at least as restrictive as [0027]<br>2021-07-03 08:58:35,286 [main] INFO  org.apache.catalina.core.AprLifecycleListener- The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: /usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib<br>2021-07-03 08:58:35,609 [main] INFO  org.apache.coyote.http11.Http11NioProtocol- Initializing ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-07-03 08:58:35,638 [main] INFO  org.apache.tomcat.util.net.NioSelectorPool- Using a shared selector for servlet write/read<br>2021-07-03 08:58:35,641 [main] INFO  org.apache.catalina.startup.Catalina- Initialization processed in 1124 ms<br>2021-07-03 08:58:35,671 [main] INFO  org.apache.catalina.core.StandardService- Starting service Catalina<br>2021-07-03 08:58:35,672 [main] INFO  org.apache.catalina.core.StandardEngine- Starting Servlet Engine:<br>2021-07-03 08:58:36,261 [localhost-startStop-1] WARN  org.apache.catalina.startup.ContextConfig- catalina annotation was enabled<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，之前的日志并没有丢失，那么假如我们把pvc和pv也删除掉，日志会不会丢失呢？这里卖个关子，有兴趣的同学可以自己测试一下。</p>
+<p>细心的同学可能会发现，我们的nfs是单点，那么如果考虑HA的话，我们还需要搭建nfs集群，nfs集群也有多种实现方式，限于篇幅，我们后面再讨论这个问题。</p>
+<h3 id="OK，在下一章节中，我们继续改造其余的微服务。"><a href="#OK，在下一章节中，我们继续改造其余的微服务。" class="headerlink" title="OK，在下一章节中，我们继续改造其余的微服务。"></a>OK，在下一章节中，我们继续改造其余的微服务。</h3><blockquote>
+<p>引用</p>
+<p>k8s部署eureka集群 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a3829851a97d">https://www.jianshu.com/p/a3829851a97d</a></p>
+<p>k8s存储方式的介绍及应用 <a target="_blank" rel="noopener" href="https://blog.csdn.net/xgp666/article/details/107242598/">https://blog.csdn.net/xgp666/article/details/107242598/</a></p>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%AE%B9%E5%99%A8%E5%8C%96%E6%8A%80%E6%9C%AF/">容器化技术</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AE%B9%E5%99%A8%E5%8C%96/">容器化</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Docker/">Docker</a>
+                    
+                      <a class="hover-with-bg" href="/tags/eureka/">eureka</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/06/04/containerization5-database/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">(五)容器化实战--数据库改造</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/06/04/containerization3-eureka/">
+                        <span class="hidden-mobile">(三)容器化实战--eureka改造</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"aABg0z1pmK0PBcdmxgbNq9HH-gzGzoHsz","appKey":"VmLcKlwx0DLrqXB6ubPaCo9B","placeholder":"说点什么","path":"window.location.pathname","avatar":"retro","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":"https://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/","emojiMaps":{"smile":"e3/2018new_weixioa02_org.png","lovely":"09/2018new_keai_org.png"},"enableQQ":true,"requiredFields":[]},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

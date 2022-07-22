@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="123">
+  <meta name="author" content="Vincent Lee">
+  <meta name="keywords" content="">
+  
+  <title>(三)容器化实战--eureka改造 - Vincent Lee</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":120,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Vincent Lee</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/background/vilige.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="(三)容器化实战--eureka改造">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-06-04 16:19" pubdate>
+        2021年6月4日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      102
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">(三)容器化实战--eureka改造</h1>
+            
+            <div class="markdown-body">
+              <p>上面两节我们对docker与k8s已经有了一定的了解，那么我们基于知识上下文，来对微服务进行改造。</p>
+<p>本小节我们以registry服务镜像改造作为起点，开始我们的容器化改造工作。路漫漫而修远兮，吾独上下而求索，与君共勉。</p>
+<p>首先，为什么选用registry呢，因为它是一个eruka注册中心，结构相对简单，代码量少，不涉及数据库，不依赖其他服务，可以独立运行。</p>
+<p>在改造之前，我们需要先考虑一些问题：</p>
+<ul>
+<li>dockerhub是公网仓库，往外网传输源码涉及信息安全，需要搭建docker私仓来存放我们的镜像。</li>
+<li>registry目前的测试运行环境与容器环境有差异需要适配。</li>
+<li>registry部署态中部署脚本进行了大量的配置性设置，需要配置到镜像当中。</li>
+<li>registry中的服务注册发现目前是基于服务器IP去路由寻址的，在k8s集群中容器的IP是随着POD的生命周期而改变，如何保证当在任何一套物理环境部署、及部署之后registry本地IP随时可能发生改变的情况下，保证registry的功能不受影响。</li>
+<li>k8s中的pod是无状态的，随着pod的销毁、弹性伸缩，registry的日志也会丢失，在多个registry实例同时产生和销毁的场景下，如何分别对它们 的日志进行保存，并保证彼此之间没有冲突。</li>
+</ul>
+<hr>
+<p>那么我们一步步来</p>
+<p>首先我的思路是自己在linux上安装一遍registry服务，看下过程中有哪些步骤是与正常的部署有区别的，把这些步骤写入到Dockefile中就能完成了。没想到一上来就掉进了坑里。</p>
+<p>我们的安装包使用的是公司定制的安全加固版的tomcat和jdk，猜想一定和平时用的开源版有许多区别，所以一定要小心谨慎，否则出了问题再没有文档的情况下很难解决。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/84912118cdf0bb1321e85eff1ac6c5ed_351x563.png@900-0-90-f.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>在测试机器上安装了jdk和把OpenAS解压到home目录下tomcat文件夹下后用tomcat试着启动了一下，没有启动起来。提示报错是当前使用root用户登陆，猜测安全加固版不允许root账户执行。改为使用其他用户执行后此报错消失。接着一直报错umask当前值为0022，安全要求最低的umask值为0027。</p>
+<blockquote>
+<p>简单介绍下umask，就是unix系统中默认创建文件的最小值。linux中的权限可以用9个位数来表示 000 000 000 前三位是owner的读、写、执行权限，后6位分别是组、其他用户的对应权限，读写执行可以分别用4、2、1来表示，如果为1个文件设置所有用户都有读写执行权限，可以用chmod 777 文件名 来设置，7=4+2+1（读加写加执行）。如果当前用户的umask值是027，那么会默认减去对应的权限值，也就是上一条命令实际设置的文件权限是750，每个用户又可以设置自己的umask值。</p>
+</blockquote>
+<p>一番操作后设置了各种umask值还是不行，原来home目录下的tomcat文件夹与tomcat用户的默认文件夹同名了，linux中创建用户会默认在home文件夹下创建同名目录，其中./bashrc是用来给这个用户配置环境变量和其他配置，以此来达到用户隔离的作用。所以在解压tomcat的时候覆盖了tomcat用户的./bashrc文件，导致我们设置umask值没有生效。</p>
+<p>真是让人哭笑不得，在其他文件夹下解压、用非root用户启动终于启动正常。</p>
+<p>这里也让我发现，自己去摸索这个不熟悉的安全框架可能还要花费大量时间。</p>
+<p>所以改变思路，我决定直接把所有安装脚本的内容研究清楚，再把这些逻辑写到镜像的制作文件Dockerfile中去，然后再写一个脚本执行docker build 就可以了。但是这样Dockerfile会变得又臭又长，不能忍受，必须解耦，复用。所以最终的方案是：</p>
+<p>把构建需要的文件和脚本放到各自的目录下，再使用docker 的ADD 和COPY命令，把这些文件和脚本一股脑丢到容器中，让脚本把jdk、tomcat安装好、环境配置好，再把自己删了….后面环境有变，我们只需要更改同目录下的脚本即可，基本无须改动Dockerfile，完美。</p>
+<p>这里省略了基础镜像centos7_jdk8的制作过程，只放一下dockerfile，制作基础镜像的目的是使用docker的优秀特性分层构建。这里就不展开了。</p>
+<p><strong>基础镜像Dockerfile</strong></p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile"><span class="hljs-comment">#使用的基础镜像 暂时使用centos7开源，后期可更改，注意如无法访问公网，本地需要提前准备</span><br><span class="hljs-keyword">FROM</span> centos:<span class="hljs-number">7</span><br><span class="hljs-comment">#作者信息  姓名 邮箱</span><br><span class="hljs-comment">#MAINTAINER name &quot;xxxx@xxx.com&quot;</span><br><br><span class="hljs-comment">#安装命令工具（可选）</span><br><span class="hljs-keyword">RUN</span><span class="bash"> yum -y install unzip &amp;&amp; yum -y install sudo</span><br><br><span class="hljs-comment">#声明变量</span><br><span class="hljs-keyword">ENV</span> JAVA_HOME=/opt/JRE<br><span class="hljs-keyword">ENV</span> INSTALL_HOME=/opt/docker_install<br><span class="hljs-keyword">ENV</span> SCRIPT_NAME=install_jdk.sh<br><br><span class="hljs-comment">#创建安装目录</span><br><span class="hljs-keyword">RUN</span><span class="bash"> mkdir -p /data01 &amp;&amp; mkdir -p <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span> &amp;&amp; mkdir -p <span class="hljs-variable">$&#123;JAVA_HOME&#125;</span></span><br><br><span class="hljs-comment">#复制安装脚本</span><br><span class="hljs-keyword">COPY</span><span class="bash"> <span class="hljs-variable">$&#123;SCRIPT_NAME&#125;</span> <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span></span><br><span class="hljs-keyword">COPY</span><span class="bash"> java.policy <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span></span><br><br><span class="hljs-comment">###############构建JDK层######################</span><br><span class="hljs-comment">#把当前目录下的jdk文件夹添加到镜像</span><br><span class="hljs-keyword">ADD</span><span class="bash"> jre-8u232-linux-x64.tar.gz <span class="hljs-variable">$&#123;JAVA_HOME&#125;</span></span><br><br><span class="hljs-comment">#运行安装脚本</span><br><span class="hljs-keyword">RUN</span><span class="bash"> sh <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span>/<span class="hljs-variable">$&#123;SCRIPT_NAME&#125;</span></span><br><span class="hljs-comment">#删除安装目录</span><br><span class="hljs-keyword">RUN</span><span class="bash"> rm -rf <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span></span><br><br><span class="hljs-comment">#Docker build命令参考：docker build -t centos7_hwjdk8 .</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p><strong>registry的Dockerfile</strong></p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile"><span class="hljs-comment">######################################################</span><br><span class="hljs-comment">#</span><br><span class="hljs-keyword">FROM</span> centos7_hwjdk8<br><span class="hljs-comment">#作者信息  姓名 邮箱</span><br><span class="hljs-comment">#MAINTAINER name &quot;xxxx@xxx.com&quot;</span><br><span class="hljs-comment">#/data01/registry/tomcat/webapps/registry/</span><br><span class="hljs-comment">#声明变量</span><br><span class="hljs-keyword">ENV</span> INSTALL_HOME=/opt/docker_install<br><span class="hljs-keyword">ENV</span> SCRIPT_NAME=install_projectName_registry.sh<br><span class="hljs-keyword">ENV</span> REGISTRY_HOME=/data01/registry<br><span class="hljs-keyword">ENV</span> TOMCATPATH=$&#123;REGISTRY_HOME&#125;/tomcat<br><br><span class="hljs-comment">############构建tomcat&amp;应用层######################</span><br><span class="hljs-keyword">RUN</span><span class="bash"> mkdir -p <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span>/config</span><br><span class="hljs-comment">#复制文件</span><br><span class="hljs-keyword">COPY</span><span class="bash"> OpenAS_Tomcat-7.zip <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span></span><br><span class="hljs-keyword">COPY</span><span class="bash"> registry.war <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span></span><br><span class="hljs-keyword">COPY</span><span class="bash"> <span class="hljs-variable">$&#123;SCRIPT_NAME&#125;</span> <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span></span><br><span class="hljs-keyword">COPY</span><span class="bash"> config <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span>/config</span><br><span class="hljs-comment">#运行安装脚本</span><br><span class="hljs-keyword">RUN</span><span class="bash"> sh <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span>/<span class="hljs-variable">$&#123;SCRIPT_NAME&#125;</span></span><br><br><span class="hljs-comment">#删除安装目录</span><br><span class="hljs-keyword">RUN</span><span class="bash"> rm -rf <span class="hljs-variable">$&#123;INSTALL_HOME&#125;</span></span><br><br><span class="hljs-comment">#启动tomcat</span><br><span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">8022</span><br><span class="hljs-keyword">USER</span> registry<br><span class="hljs-comment">#启动时运行tomcat</span><br><span class="hljs-keyword">CMD</span><span class="bash"> [<span class="hljs-string">&quot;/data01/registry/tomcat/bin/catalina.sh&quot;</span>,<span class="hljs-string">&quot;run&quot;</span>]</span><br><span class="hljs-comment">#docker build -t registry .</span><br></code></pre></td></tr></table></figure>
+
+<p>在写脚本之前，我们需要对目前的部署脚本结构、实现有一个整体的了解。</p>
+<p>首先我们来了解一下我们的部署脚本结构</p>
+<p><img src="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/100126e1efcaaa305d50bb43523d8259_308x818.png@900-0-90-f.png" srcset="https://cdn.jsdelivr.net/gh/jackey-l/blog_static@master/img/loading.gif" lazyload></p>
+<p>核心是<code>install.sh</code>这个脚本，在main函数里可以发现，它执行了其它同目录下的其它sh,这里我们以registry为例，看下这个服务到底是如何部署的。</p>
+<p>打开<code>install.sh</code></p>
+<p>我们只看核心部分,其它几个脚本的作用这里只简单注释下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs shell">...<br>main() &#123;<br>  echo &quot;&quot;<br>  LOG &quot;INFO&quot; &quot;=============================projectName install Begin===================================&quot;<br>  LOG &quot;INFO&quot; &quot;projectName all install exec date: date &quot;+%Y-%m-%d %H:%M:%S&quot;&quot;<br><span class="hljs-meta">  #</span><span class="bash">检查安装包完整性</span><br>  prepare_install || return 1<br><span class="hljs-meta">  #</span><span class="bash">检查ssh密码（后面用于连接其它节点进行部署）</span><br>  ssh_with_password || return 1<br><span class="hljs-meta">  #</span><span class="bash">修改application.yml</span><br>  modify_application_yml || return 1<br><span class="hljs-meta">  #</span><span class="bash">复制安装包到其他节点</span><br>  scp_package_vm || return 1<br><span class="hljs-meta">  #</span><span class="bash">创建安装目录</span><br>  install_maint || return 1<br><span class="hljs-meta">  #</span><span class="bash">安装jdk</span><br>  install_jdk || return 1<br><span class="hljs-meta">  #</span><span class="bash">数据库相关操作</span><br>  refresh_sql || return 1<br><span class="hljs-meta">  #</span><span class="bash">核心实现</span><br>  install_registry || return 1<br>  ...<br>...  <br>install_registry() &#123;<br><span class="hljs-meta">  #</span><span class="bash"><span class="hljs-comment"># registry install</span></span><br>  for ((i = 0; i &lt; $&#123;#registry_install_ip[@]&#125;; i++)); do<br>    vm1=$&#123;registry_install_ip[$i]&#125;<br>    vm=$(eval echo &#x27;$&#x27;&quot;$&#123;vm1&#125;&quot;)<br>    LOG &quot;INFO&quot; &quot;================= install projectName registry in $&#123;vm&#125; =================&quot;<br>    #执行了install_projectName_registry.sh<br>    ssh $&#123;setup_user&#125;@$&#123;vm&#125; &quot;cd $&#123;CUR_DIR&#125;; sh install_projectName_registry.sh $&#123;vm&#125;&quot;<br>  done<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>打开部署脚本<code>install_projectName_registry.sh</code></p>
+<p>查看主函数,这里我们有些配置我们要去掉，有些要修改，需要根据我们对未来运行环境的情况来自己配置生成自己的打包脚本。这里仅供参考</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs shell">main()<br>&#123;<br>    echo &quot;=======================================================================&quot;<br>    LOG &quot;INFO&quot; &quot;------ begin install projectName registry root -----&quot;<br><span class="hljs-meta">	#</span><span class="bash">创建用户、组等，后面的registry应用的操作都基于这个权限，保留</span><br>    create_user &quot;registry&quot; $&#123;REGISTRY_USER&#125; $&#123;REGISTRY_USER_GROUP_NAME&#125; $&#123;REGISTRY_USER_HOME&#125; || return 1<br>    #设置环境变量 保留<br>    set_env &quot;registry&quot; $&#123;REGISTRY_USER_HOME&#125; $&#123;REGISTRY_USER&#125; || return 1<br><span class="hljs-meta">	#</span><span class="bash">安装JDK 这里重复安装了2个JDK 我们后面使用一个就可以了</span><br>    install_jdk &quot;registry&quot; $&#123;REGISTRY_USER&#125; $&#123;REGISTRY_USER_GROUP_NAME&#125; $&#123;REGISTRY_USER_HOME&#125; || return 1<br><span class="hljs-meta">	#</span><span class="bash">安装tomcat</span><br>    install_openas &quot;registry&quot; $&#123;REGISTRY_USER&#125; $&#123;REGISTRY_USER_GROUP_NAME&#125; $&#123;REGISTRY_USER_HOME&#125; || return 1<br><span class="hljs-meta">	#</span><span class="bash">设置配置</span> <br>    install_projectName_registry_service  || return 1<br>    #设置tomcat配置<br>    modify_tomcat_config &quot;registry&quot; $&#123;REGISTRY_USER&#125; $&#123;REGISTRY_USER_GROUP_NAME&#125; $&#123;REGISTRY_USER_HOME&#125; $&#123;local_ip&#125; || return 1<br><span class="hljs-meta">	#</span><span class="bash">设置tomcat端口</span><br>    modify_server_xml_port || return 1<br><span class="hljs-meta">	#</span><span class="bash">tomcat https相关设置 我们的容器并没有对外暴露，去掉</span><br>    modify_https_license || return 1<br>    #配置服务设置<br>    modify_projectName_registry_service || return 1<br>    #启动服务 去掉，我们使用的是Dockerfild的CMD命令启动，服务必须运行于前台，因为后面要使用k8s等平台来编排。<br>    start_registry || return 1<br>    #增加定时启动任务，防止服务器重启后服务down掉，提高程序健壮性，去掉，我们使用k8s的自愈功能。<br>    add_crontab || return 1<br><br>    LOG &quot;INFO&quot; &quot;------ end install projectName registry root -----&quot;<br>    echo &quot;=======================================================================&quot;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>【注意】如果写完脚本还是运行不了，可以检查下看是不是省略了某些步骤。</p>
+<blockquote>
+<p>此处省略1000字写脚本调试过程….</p>
+</blockquote>
+<p>最终得到的脚本：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">!/bin/bash</span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment">#####################部署脚本用到的配置#########################################</span></span><br>SCRIPT_NAME=&quot;install_projectName_registry.sh&quot;<br>CUR_DIR=/opt/docker_install<br>SOFT_PATH=$&#123;CUR_DIR&#125;/../../../SoftWarePackage<br>CONF_PATH=$&#123;CUR_DIR&#125;/config<br>JRE_PATH=/opt/JRE<br>common_key=2db799094c8101ded579be4435d5a75d7bb36a57ec8822f35437585551847c788919a5b5e76d92037a6483a5a0be061c<br>tomcat_name=&quot;OpenAS_Tomcat-7.zip&quot;<br><br>REGISTRY_USER_HOME=/data01/registry<br>REGISTRY_USER=registry<br>REGISTRY_USER_GROUP_NAME=projectName<br>projectName_REGISTRY_SERVICE=registry<br>projectName_war_path=$&#123;CUR_DIR&#125;/registry.war<br>projectName_registry_http_port=8022<br>port1=8023<br><br>install_projectName_registry_service()<br>&#123;<br>    echo &quot;INFO&quot; &quot;begin install registry service ...&quot;<br><br>    if [[ ! -f $&#123;projectName_war_path&#125; ]];then<br>        echo &quot;ERROR&quot; &quot;[ file $&#123;projectName_war_path&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br><br>    registry_path=$&#123;REGISTRY_USER_HOME&#125;/tomcat/webapps/$&#123;projectName_REGISTRY_SERVICE&#125;<br>    if [[ ! -d $&#123;registry_path&#125; ]];then<br>        sudo su - $&#123;REGISTRY_USER&#125; -c &quot;mkdir -p $&#123;registry_path&#125;&quot;<br>        if [[ $? -ne 0 ]];then<br>            echo &quot;ERROR&quot; &quot;[ mkdir -p $&#123;registry_path&#125; ] failed&quot;<br>            return 1<br>        fi<br>    fi<br><br>    sudo unzip -q $&#123;projectName_war_path&#125; -d $&#123;registry_path&#125;<br>    if [[ $? -ne 0 ]];then<br>        echo &quot;ERROR&quot; &quot;[ unzip $&#123;projectName_war_path&#125; ] failed&quot;<br>        return 1<br>    fi<br>  sudo chmod -R 750 $&#123;registry_path&#125;/META-INF<br>    echo &quot;INFO&quot; &quot;end install registry service ...&quot;<br>&#125;<br><br>function modify_server_xml_port<br>&#123;<br>    echo &quot;INFO&quot; &quot;begin modify server.xml port openas ...&quot;<br><br>    sudo su - $&#123;REGISTRY_USER&#125; &lt;&lt;EOF<br>    server_path=$&#123;REGISTRY_USER_HOME&#125;/tomcat/conf/server.xml<br>    if [[ ! -f $&#123;server_path&#125; ]];then<br>        echo &quot;[ file $&#123;server_path&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br>    #修改端口号<br><br><br>    sed -i -e s/8384/$&#123;port1&#125;/g $&#123;server_path&#125;<br>    # https 端口号<br>    #sed -i -e s/8542/$&#123;projectName_registry_port&#125;/g $&#123;server_path&#125;<br>    # http 端口号<br><br>    sed -i -e s/19998/$&#123;projectName_registry_http_port&#125;/g $&#123;server_path&#125;<br><br>    #sed -i &quot;s#path=\&quot;.*\&quot;\\(.*docBase.*\\)#path=\&quot;\/register\&quot;\\1#g&quot; $&#123;server_path&#125;<br><br>    sed -i &quot;s#docBase=\&quot;.*\&quot;\\(.*reloadable.*\\)#docBase=\&quot;$&#123;projectName_REGISTRY_SERVICE&#125;\&quot;\\1#g&quot; $&#123;server_path&#125;<br>    exit<br>EOF<br><br>    echo &quot;INFO&quot; &quot;successful modify server.xml port openas ...&quot;<br>&#125;<br><br>modify_projectName_registry_service()<br>&#123;<br>	echo &quot;INFO&quot; &quot;begin modify registry service ...&quot;<br>    application_common=$&#123;CONF_PATH&#125;/application-common.yml<br>    application_broker=$&#123;CONF_PATH&#125;/application-broker.yml<br>    application_path=$&#123;REGISTRY_USER_HOME&#125;/tomcat/webapps/$&#123;projectName_REGISTRY_SERVICE&#125;/WEB-INF/classes/<br>    sudo cp $&#123;application_common&#125; $&#123;application_path&#125;<br>    sudo cp $&#123;application_broker&#125; $&#123;application_path&#125;<br><br>	  file_application_yml=$&#123;REGISTRY_USER_HOME&#125;/tomcat/webapps/$&#123;projectName_REGISTRY_SERVICE&#125;/WEB-INF/classes/application.yml<br>    sudo su - $&#123;REGISTRY_USER&#125; &lt;&lt;EOF<br><br>    if [[ ! -f $&#123;file_application_yml&#125; ]];then<br>        echo &quot;[ file $&#123;file_application_yml&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br>    ## set spring application name<br>    sed -i &quot;s/    name: .*/    name: $&#123;projectName_REGISTRY_SERVICE&#125;/&quot; $&#123;file_application_yml&#125;<br><br>    sed -i &quot;s/  port: .*/  port: $&#123;projectName_registry_http_port&#125;/&quot; $&#123;file_application_yml&#125;<br><br>EOF<br>  sudo chown -R $&#123;REGISTRY_USER&#125;:$&#123;REGISTRY_USER_GROUP_NAME&#125; $&#123;REGISTRY_USER_HOME&#125;<br>	echo &quot;INFO&quot; &quot;successful modify registry service ...&quot;<br><br>&#125;<br><br><br>create_user()<br>&#123;<br>    COMPONENT_NAME=$1<br>    USER_NAME=$2<br>    GROUP_NAME=$3<br>    USER_HOME=$4<br><br>    if [[ &quot;X&quot; == &quot;X$&#123;COMPONENT_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;USER_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;GROUP_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;USER_HOME&#125;&quot; ]];then<br>        echo &quot;ERROR&quot; &quot;$&#123;COMPONENT_NAME&#125; or $&#123;USER_NAME&#125; or $&#123;GROUP_NAME&#125; or $&#123;USER_HOME&#125;is null,pls check !&quot;<br>        return 1<br>    fi<br><br>	echo &quot;INFO&quot; &quot;begin create projectName $&#123;COMPONENT_NAME&#125; user ...&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">	#</span><span class="bash">判断用户是否存在</span><br>    flag_create=&quot;No&quot;<br>    id $&#123;USER_NAME&#125; &gt; /dev/null 2&gt;&amp;1<br>    if [[ $? -ne 0 ]];then<br>    	#用户不存在，需要创建用户<br>        flag_create=&quot;Yes&quot;<br>    fi<br><span class="hljs-meta"></span><br><span class="hljs-meta">	#</span><span class="bash">用户存在,返回</span><br>    if [[ &quot;xYes&quot; != &quot;x$&#123;flag_create&#125;&quot; ]];then<br>        is_shell_matched=$(cat /etc/passwd | grep $&#123;USER_NAME&#125; | awk -F &#x27;:&#x27; &#x27;&#123;print $7&#125;&#x27;| grep -E &#x27;ksh|bash|csh&#x27;)<br>        if [[ &quot;x&quot; == &quot;x$&#123;is_shell_matched&#125;&quot; ]];then<br>            echo &quot;ERROR&quot; &quot;$&#123;USER_NAME&#125; is existed,pls check or change another user name~&quot;<br>            return 1<br>        fi<br><br>        echo &quot;ERROR&quot; &quot;$&#123;USER_NAME&#125; is existed&quot;<br>        return 1<br>    fi<br><span class="hljs-meta"></span><br><span class="hljs-meta">	#</span><span class="bash">判断用户组是否存在，存在直接使用，不存在则重新创建</span><br>    ret=$(cat /etc/group | grep -w &quot;^$&#123;GROUP_NAME&#125;&quot;)<br>    if [[ &quot;x&quot; != &quot;x$&#123;ret&#125;&quot; ]];then<br>        echo &quot;WARN&quot; &quot;[ GROUP_NAME:$&#123;GROUP_NAME&#125; ] is already exist, use it directly!&quot;<br>    else<br>        echo &quot;INFO&quot; &quot;GROUP_NAME:$&#123;GROUP_NAME&#125;&quot;<br><br>        sudo groupadd $&#123;GROUP_NAME&#125;<br>        if [[ $? -ne 0 ]];then<br>            echo &quot;ERROR&quot; &quot;[ groupadd $&#123;GROUP_NAME&#125; ] failed&quot;<br>            return 1<br>        fi<br>    fi<br><br>    user_path=&quot;/data01&quot;<br>    sudo chmod 755 $&#123;user_path&#125;<br><br>    linux_bash=&quot;/bin/bash&quot;<br>    sudo useradd -m -d $&#123;USER_HOME&#125; $&#123;USER_NAME&#125; -s $&#123;linux_bash&#125; -g $&#123;GROUP_NAME&#125; &gt;/dev/null 2&gt;/dev/null<br>    if [[ $? -ne 0 ]];then<br>        echo &quot;ERROR&quot; &quot;[ useradd -m -d $&#123;USER_HOME&#125; $&#123;USER_NAME&#125; -s $&#123;linux_bash&#125; -g $&#123;GROUP_NAME&#125; ] failed&quot;<br>        return 1<br>    fi<br>    sudo chmod -R 750 $&#123;USER_HOME&#125;<br>    encrypt_user_password $&#123;USER_NAME&#125; || return 1<br><br>    echo &quot;INFO&quot; &quot;successful create projectName $&#123;COMPONENT_NAME&#125; user ...&quot;<br><br>    return 0<br>&#125;<br><br>function encrypt_user_password<br>&#123;<br>    PASSWORD_USER_NAME=$1<br>    passwd_user=$&#123;PASSWORD_USER_NAME&#125;<br>    if [[ &quot;X&quot; == &quot;X$&#123;PASSWORD_USER_NAME&#125;&quot; ]];then<br>        echo &quot;ERROR&quot; &quot;$&#123;PASSWORD_USER_NAME&#125; is null,pls check !&quot;<br>        return 1<br>    fi<br>    echo &quot;INFO&quot; &quot;begin encrypt user password ...&quot;<br><br>    encrypt_user_password=`echo -n &quot;$&#123;passwd_user&#125;&quot; | openssl enc -aes-128-ecb -a -e -pass pass:&quot;indicator&quot; -nosalt`<br>    if [[ $? -ne 0 ]];then<br>        echo &quot;WARN&quot; &quot;[ encrypt user password &#123;openssl enc -aes-128-ecb -a -e -pass pass:&quot;indicator&quot; -nosalt&#125; ] failed&quot;<br>        encrypt_user_password=$&#123;passwd_user&#125;<br>    fi<br><br>    if [[ &quot;x&quot; == &quot;x$&#123;encrypt_user_password&#125;&quot; ]];then<br>        echo &quot;WARN&quot; &quot;[ encrypt user password=$&#123;encrypt_user_password&#125;,it is null~ ] failed&quot;<br>    fi<br><br>    (echo -E &quot;$&#123;encrypt_user_password&#125;&quot;;sleep 1;echo -E &quot;$&#123;encrypt_user_password&#125;&quot;) | sudo passwd &quot;$&#123;PASSWORD_USER_NAME&#125;&quot; &gt;/dev/null 2&gt;/dev/null<br>    if [[ $? -ne 0 ]]; then<br>        echo &quot;WARN&quot; &quot;Failed to change user passwd by aes&quot;<br>    fi<br><br>    echo &quot;INFO&quot; &quot;end encrypt user password ...&quot;<br>&#125;<br><br>function set_env<br>&#123;<br>    COMPONENT_NAME=$1<br>    USER_HOME=$2<br>    USER_NAME=$3<br><br>    if [[ &quot;X&quot; == &quot;X$&#123;COMPONENT_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;USER_HOME&#125;&quot; ]];then<br>        echo &quot;ERROR&quot; &quot;$&#123;COMPONENT_NAME&#125; or $&#123;USER_HOME&#125; is null,pls check !&quot;<br>        return 1<br>    fi<br><br>	echo &quot;INFO&quot; &quot;begin set $&#123;COMPONENT_NAME&#125; umask and JDK env ...&quot;<br><br>	file_bash=$&#123;USER_HOME&#125;/.bashrc<br>    if [[ ! -f $&#123;file_bash&#125; ]];then<br>        sudo touch $&#123;file_bash&#125;<br>        if [[ $? -ne 0 ]];then<br>            echo &quot;ERROR&quot; &quot;[ touch $&#123;file_bash&#125; ] failed&quot;<br>            return 1<br>        fi<br>        sudo chown $&#123;USER_NAME&#125;:projectName $&#123;file_bash&#125;<br>    fi<br>    sudo su - $&#123;USER_NAME&#125; &lt;&lt;EOF<br>    echo &quot;export APP_HOME=$&#123;USER_HOME&#125;&quot; &gt;&gt; $&#123;file_bash&#125;<br>    echo &quot;export JAVA_HOME=/opt/JRE/jre1.8.0_232&quot; &gt;&gt; $&#123;file_bash&#125;<br>    echo &#x27;export JRE_HOME=\$&#123;JAVA_HOME&#125;&#x27; &gt;&gt; $&#123;file_bash&#125;<br>    echo &#x27;export  PATH=\$JAVA_HOME/bin:\$PATH&#x27; &gt;&gt; $&#123;file_bash&#125;<br>    echo &#x27;export CLASSPATH=\$CLASSPATH:\$JAVA_HOME/lib&#x27; &gt;&gt; $&#123;file_bash&#125;<br>    echo &quot;umask 027&quot; &gt;&gt; $&#123;file_bash&#125;<br>EOF<br><br><br>    if [[ -d $&#123;USER_HOME&#125;/perl5 ]];then<br>          sudo chmod 750 -R $&#123;USER_HOME&#125;/perl5<br>    fi<br><br>    if [[ -d $&#123;USER_HOME&#125;/.local ]];then<br>        sudo chmod 750 -R $&#123;USER_HOME&#125;/.local<br>    fi<br><br>    echo &quot;INFO&quot; &quot;successful set $&#123;COMPONENT_NAME&#125; umask and JDK env ...&quot;<br>&#125;<br><br>install_jdk()<br>&#123;<br>    COMPONENT_NAME=$1<br>    USER_NAME=$2<br>    GROUP_NAME=$3<br>    USER_HOME=$4<br><br>    if [[ &quot;X&quot; == &quot;X$&#123;COMPONENT_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;USER_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;GROUP_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;USER_HOME&#125;&quot; ]];then<br>        echo &quot;ERROR&quot; &quot;$&#123;COMPONENT_NAME&#125; or $&#123;USER_NAME&#125; or $&#123;GROUP_NAME&#125; or $&#123;USER_HOME&#125; is null,pls check !&quot;<br>        return 1<br>    fi<br><br>	echo &quot;INFO&quot; &quot;begin install $&#123;COMPONENT_NAME&#125; JRE ...&quot;<br><br>    sudo chown -R $&#123;USER_NAME&#125;:$&#123;GROUP_NAME&#125; $&#123;JRE_PATH&#125;<br><br>    sudo su - $&#123;USER_NAME&#125; -c &quot;source etc/profile;java -version&quot; &gt;/dev/null 2&gt;/dev/null<br>	if [[ $? -ne 0 ]];then<br>        echo &quot;ERROR&quot; &quot;[ su - $&#123;USER_NAME&#125; -c \&quot;java -version\&quot; ] failed&quot;<br>        return 1<br>    fi<br>    sudo chmod 750 -R $&#123;JRE_PATH&#125;<br>	echo &quot;INFO&quot; &quot;successful install $&#123;COMPONENT_NAME&#125; JDK ...&quot;<br>&#125;<br><br>install_openas()<br>&#123;<br>    COMPONENT_NAME=$1<br>    USER_NAME=$2<br>    GROUP_NAME=$3<br>    USER_HOME=$4<br><br>    if [[ &quot;X&quot; == &quot;X$&#123;COMPONENT_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;USER_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;GROUP_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;USER_HOME&#125;&quot; ]];then<br>        echo &quot;ERROR&quot; &quot;$&#123;COMPONENT_NAME&#125; or $&#123;USER_NAME&#125; or $&#123;GROUP_NAME&#125; or $&#123;USER_HOME&#125; is null,pls check !&quot;<br>        return 1<br>    fi<br><br>	echo &quot;INFO&quot; &quot;begin install $&#123;COMPONENT_NAME&#125; openas ...&quot;<br><br><br>	file_openas=$&#123;CUR_DIR&#125;/$&#123;tomcat_name&#125;<br>    if [[ ! -f $&#123;file_openas&#125; ]];then<br>        echo &quot;ERROR&quot; &quot;[ file $&#123;file_openas&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br><br>	sudo unzip -q $&#123;file_openas&#125; -d $&#123;USER_HOME&#125;/tomcat<br>    if [[ $? -ne 0 ]];then<br>        echo &quot;ERROR&quot; &quot;[ unzip $&#123;file_openas&#125; -d $&#123;USER_HOME&#125;/tomcat ] failed&quot;<br>        return 1<br>    fi<br><br> 	sudo chown -R $&#123;USER_NAME&#125;:$&#123;GROUP_NAME&#125; $&#123;USER_HOME&#125;/tomcat<br>      sudo chmod 750 $&#123;USER_HOME&#125;/tomcat<br>    echo &quot;INFO&quot; &quot;successful install $&#123;COMPONENT_NAME&#125; openas ...&quot;<br><br>&#125;<br><br>function modify_tomcat_config<br>&#123;<br>    COMPONENT_NAME=$1<br>    USER_NAME=$2<br>    GROUP_NAME=$3<br>    USER_HOME=$4<br>    LOCAL_IP=$5<br><br>    if [[ &quot;X&quot; == &quot;X$&#123;COMPONENT_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;USER_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;GROUP_NAME&#125;&quot; ]] || [[ &quot;X&quot; == &quot;X$&#123;USER_HOME&#125;&quot; ]];then<br>        echo &quot;ERROR&quot; &quot;$&#123;COMPONENT_NAME&#125; or $&#123;USER_NAME&#125; or $&#123;GROUP_NAME&#125; or $&#123;USER_HOME&#125; is null,pls check !&quot;<br>        return 1<br>    fi<br><br>    echo &quot;INFO&quot; &quot;begin modify $&#123;COMPONENT_NAME&#125; server.xml openas ...&quot;<br><br>    server_path=$&#123;USER_HOME&#125;/tomcat/conf/server.xml<br><br><br>    server_path_template=$&#123;CUR_DIR&#125;/config/server.xml<br>    if [[ ! -f $&#123;server_path_template&#125; ]];then<br>        echo &quot;ERROR&quot; &quot;[ file $&#123;server_path_template&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br><br>    sudo cp $&#123;server_path_template&#125; $&#123;server_path&#125;<br>    if [[ $? -ne 0 ]];then<br>        echo &quot;ERROR&quot; &quot;[ cp $&#123;server_path_template&#125; $&#123;server_path&#125;] failed&quot;<br>        return 1<br>    fi<br><br>    #修改https ip地址<br>    sudo su - $&#123;USER_NAME&#125; &lt;&lt;EOF<br><br>    #修改加解密地址<br>    sed -i &quot;s#keystoreFile=\&quot;.*\&quot;\\(.*keystorePass.*\\)#keystoreFile=\&quot;$&#123;USER_HOME&#125;/tls/romaServerKeyStore\&quot;\\1#g&quot; $&#123;server_path&#125;<br>    sed -i &quot;s#truststoreFile=\&quot;.*\&quot;\\(.*truststorePass.*\\)#truststoreFile=\&quot;$&#123;USER_HOME&#125;/tls/romaServerTrustStore\&quot;\\1#g&quot; $&#123;server_path&#125;<br>    sed -i &quot;s#clientAuth=\&quot;.*\&quot;\\(.*keystoreFile.*\\)#clientAuth=\&quot;true\&quot;\\1#g&quot; $&#123;server_path&#125;<br><br>    sed -i &quot;s#keystorePass=\&quot;.*\&quot;\\(.*ciphers.*\\)#keystorePass=\&quot;$&#123;keystorePass&#125;\&quot;\\1#g&quot; $&#123;server_path&#125;<br>    sed -i &quot;s#truststorePass=\&quot;.*\&quot;\\(.*/&gt;.*\\)#truststorePass=\&quot;$&#123;truststorePass&#125;\&quot;\\1#g&quot; $&#123;server_path&#125;<br>    #修改setvmargs.sh java prop<br>    chmod  -R 700 $&#123;USER_HOME&#125;/tomcat/bin<br>    echo &quot;JAVA_OPTS=\&quot;\$JAVA_OPTS -Dapp_home=$&#123;USER_HOME&#125;\&quot;&quot; &gt;&gt; $&#123;USER_HOME&#125;/tomcat/bin/setvmargs.sh<br>    chmod  -R 0550 $&#123;USER_HOME&#125;/tomcat/bin<br>EOF<br><br><br><br>    #copy web.xml to user home openas config<br>    sudo cp $&#123;CONF_PATH&#125;/web.xml $&#123;USER_HOME&#125;/tomcat/conf<br>    if [[ $? -ne 0 ]];then<br>        echo &quot;ERROR&quot; &quot;[ cp $&#123;CONF_PATH&#125;/web.xml $&#123;USER_HOME&#125;/tomcat/conf ] failed&quot;<br>        return 1<br>    fi<br><br>    #copy catalina.properties to user home openas config<br>    sudo cp $&#123;CONF_PATH&#125;/catalina.properties $&#123;USER_HOME&#125;/tomcat/conf<br>    if [[ $? -ne 0 ]];then<br>        echo &quot;ERROR&quot; &quot;[ cp $&#123;CONF_PATH&#125;/catalina.properties $&#123;USER_HOME&#125;/tomcat/conf ] failed&quot;<br>        return 1<br>    fi<br><br>    #copy setkidenv.sh to user home openas config<br>    sudo cp $&#123;CONF_PATH&#125;/setkidenv.sh  $&#123;USER_HOME&#125;/tomcat/bin/kiddle/<br>    if [[ $? -ne 0 ]];then<br>        echo &quot;ERROR&quot; &quot;[ cp $&#123;CONF_PATH&#125;/setkidenv.sh  $&#123;USER_HOME&#125;/tomcat/bin/kiddle ] failed&quot;<br>        return 1<br>    fi<br><br>    # modify secretkey.properties<br><br>    secretkey_properties=$&#123;USER_HOME&#125;/tomcat/conf/secretkey.properties<br>    sudo -i sed -i &quot;s#common.key=.*#common.key=$&#123;common_key&#125;#g&quot; $&#123;secretkey_properties&#125;<br><br>    sudo chown -R $&#123;USER_NAME&#125;:$&#123;GROUP_NAME&#125; $&#123;USER_HOME&#125;<br><br>    echo &quot;INFO&quot; &quot;successful modify $&#123;COMPONENT_NAME&#125; server.xml openas ...&quot;<br>&#125;<br><br>main()<br>&#123;<br>    echo &quot;=======================================================================&quot;<br>    echo &quot;INFO&quot; &quot;------ begin build projectName registry image -----&quot;<br><br>    create_user &quot;registry&quot; $&#123;REGISTRY_USER&#125; $&#123;REGISTRY_USER_GROUP_NAME&#125; $&#123;REGISTRY_USER_HOME&#125; || return 1<br><br>    set_env &quot;registry&quot; $&#123;REGISTRY_USER_HOME&#125; $&#123;REGISTRY_USER&#125; || return 1<br><br>    install_jdk &quot;registry&quot; $&#123;REGISTRY_USER&#125; $&#123;REGISTRY_USER_GROUP_NAME&#125; $&#123;REGISTRY_USER_HOME&#125; || return 1<br><br>    install_openas &quot;registry&quot; $&#123;REGISTRY_USER&#125; $&#123;REGISTRY_USER_GROUP_NAME&#125; $&#123;REGISTRY_USER_HOME&#125; || return 1<br><br>    install_projectName_registry_service  || return 1<br><br>    modify_tomcat_config &quot;registry&quot; $&#123;REGISTRY_USER&#125; $&#123;REGISTRY_USER_GROUP_NAME&#125; $&#123;REGISTRY_USER_HOME&#125; $&#123;local_ip&#125; || return 1<br><br>    modify_server_xml_port || return 1<br><br>    modify_projectName_registry_service || return 1<br><br><br>    echo &quot;INFO&quot; &quot;------ end build projectName registry image -----&quot;<br>    echo &quot;=======================================================================&quot;<br>&#125;<br>main &quot;$@&quot;<br></code></pre></td></tr></table></figure>
+
+<p>有了这个脚本，我们docker build还是要手动敲命令，那么再来一个脚本。</p>
+<p><code>build_registry_image.sh</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">! /bin/bash</span><br><br>CUR_DIR=$(pwd)<br>cdir=$(cd `dirname $0`; pwd)<br>. $&#123;cdir&#125;/comm_lib<br><br>IMAGE_NAME=$&#123;REGISTRY_USER&#125;<br><br>WORK_DIR=$(cd ../DockerFile/projectName_registry;pwd)<br><br>check_dictionary()<br>&#123;<br>    LOG &quot;INFO&quot; &quot;BEGIN CHECK DICTIONARY...&quot;<br><br><br>	  if [[ ! -d $&#123;WORK_DIR&#125; ]];then<br>        LOG &quot;ERROR&quot; &quot;[ dictionary $&#123;WORK_DIR&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br><br>    LOG &quot;INFO&quot; &quot;DICTIONARY IS READY&quot;<br>&#125;<br><br>check_files()<br>&#123;<br>    LOG &quot;INFO&quot; &quot;BEGIN CHECK FILES...&quot;<br><br>  	dockfile_path=$&#123;WORK_DIR&#125;/Dockerfile<br>	  if [[ ! -f $&#123;dockfile_path&#125; ]];then<br>        LOG &quot;ERROR&quot; &quot;[ file $&#123;dockfile_path&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br><br>    tomcat_path=$&#123;WORK_DIR&#125;/OpenAS_Tomcat-7.zip<br>	  if [[ ! -f $&#123;tomcat_path&#125; ]];then<br>        LOG &quot;ERROR&quot; &quot;[ file $&#123;tomcat_path&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br><br>    war_path=$&#123;WORK_DIR&#125;/registry.war<br>	  if [[ ! -f $&#123;war_path&#125; ]];then<br>        LOG &quot;ERROR&quot; &quot;[ file $&#123;war_path&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br><br>    sh_path=$&#123;WORK_DIR&#125;/install_projectName_registry.sh<br>	  if [[ ! -f $&#123;sh_path&#125; ]];then<br>        LOG &quot;ERROR&quot; &quot;[ file $&#123;sh_path&#125; ] is not exist,pls check~&quot;<br>        return 1<br>    fi<br>&#125;<br><br>buildImage()&#123;<br><br>    cd $&#123;WORK_DIR&#125;<br><br>    docker build -t $&#123;IMAGE_NAME&#125; . || return 1<br><br>    if [[ $? -ne 0 ]];then<br>        LOG &quot;ERROR&quot; &quot;$&#123;IMAGE_NAME&#125;Image Build  failed&quot;<br>        return 1<br>    fi<br><br>&#125;<br><br>function main()<br>&#123;<br>    echo &quot;=======================================================================&quot;<br><br>    check_dictionary || return 1<br><br>    check_files || return 1<br><br>    buildImage || return 1<br><br>    echo &quot;=======================================================================&quot;<br>&#125;<br><br>main &quot;$@&quot;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">其中这个镜像名我们配在了common_lib中。</span><br>IMAGE_NAME=$&#123;REGISTRY_USER&#125;<br></code></pre></td></tr></table></figure>
+
+<p>好了，写了半天，是骡子是，拉出来跑跑。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@node02 bin]# cd /opt/projectName/SetupScripts/projectNameScripts/bin/docker/bin<br>[root@node02 bin]# sh build_registry_image.sh<br>=======================================================================<br>[2021-06-28 23:08:39][INFO][][root][BEGIN CHECK DICTIONARY...]<br><br>[2021-06-28 23:08:39][INFO][][root][DICTIONARY IS READY]<br><br>[2021-06-28 23:08:39][INFO][][root][BEGIN CHECK FILES...]<br><br>Sending build context to Docker daemon  52.65MB<br>Step 1/15 : FROM centos7_hwjdk8<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 7addb65ed3f6</span><br>Step 2/15 : ENV INSTALL_HOME=/opt/docker_install<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> Running <span class="hljs-keyword">in</span> 436e36f4c713</span><br>Removing intermediate container 436e36f4c713<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 9c6cf4df82f4</span><br>Step 3/15 : ENV SCRIPT_NAME=install_projectName_registry.sh<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> Running <span class="hljs-keyword">in</span> 9d47bdf95dc0</span><br>Removing intermediate container 9d47bdf95dc0<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 4457cc6a3b5b</span><br>Step 4/15 : ENV REGISTRY_HOME=/data01/registry<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> Running <span class="hljs-keyword">in</span> 1d0573560912</span><br>Removing intermediate container 1d0573560912<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 7a7d94d7b1ad</span><br>Step 5/15 : ENV TOMCATPATH=$&#123;REGISTRY_HOME&#125;/tomcat<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> Running <span class="hljs-keyword">in</span> 4318ee1fd9ab</span><br>Removing intermediate container 4318ee1fd9ab<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> f60b711e3fee</span><br>Step 6/15 : RUN mkdir -p $&#123;INSTALL_HOME&#125;/config<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> Running <span class="hljs-keyword">in</span> 0bafcf3362ed</span><br>Removing intermediate container 0bafcf3362ed<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 203039be9ed7</span><br>Step 7/15 : COPY OpenAS_Tomcat-7.zip $&#123;INSTALL_HOME&#125;<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> c3dada09286a</span><br>Step 8/15 : COPY registry.war $&#123;INSTALL_HOME&#125;<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 863b6a19f960</span><br>Step 9/15 : COPY $&#123;SCRIPT_NAME&#125; $&#123;INSTALL_HOME&#125;<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 3c9ea6dabbea</span><br>Step 10/15 : COPY config $&#123;INSTALL_HOME&#125;/config<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> b6e1a20d1d6a</span><br>Step 11/15 : RUN sh $&#123;INSTALL_HOME&#125;/$&#123;SCRIPT_NAME&#125;<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> Running <span class="hljs-keyword">in</span> 834d4299cb17</span><br>=======================================================================<br>INFO ------ begin build projectName registry image -----<br>INFO begin create projectName registry user ...<br>INFO GROUP_NAME:projectName<br>INFO begin encrypt user password ...<br>INFO end encrypt user password ...<br>INFO successful create projectName registry user ...<br>INFO begin set registry umask and JDK env ...<br>INFO successful set registry umask and JDK env ...<br>INFO begin install registry JRE ...<br>INFO successful install registry JDK ...<br>INFO begin install registry openas ...<br>INFO successful install registry openas ...<br>INFO begin install registry service ...<br>INFO end install registry service ...<br>INFO begin modify registry server.xml openas ...<br>Last login: Tue Jun 29 03:08:50 UTC 2021<br>INFO successful modify registry server.xml openas ...<br>INFO begin modify server.xml port openas ...<br>Last login: Tue Jun 29 03:08:51 UTC 2021<br>INFO successful modify server.xml port openas ...<br>INFO begin modify registry service ...<br>Last login: Tue Jun 29 03:08:51 UTC 2021<br>INFO successful modify registry service ...<br>INFO ------ end build projectName registry image -----<br>=======================================================================<br>Removing intermediate container 834d4299cb17<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 2075f2e83001</span><br>Step 12/15 : RUN rm -rf $&#123;INSTALL_HOME&#125;<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> Running <span class="hljs-keyword">in</span> a51f9db8b758</span><br>Removing intermediate container a51f9db8b758<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 817edeead831</span><br>Step 13/15 : EXPOSE 8022<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> Running <span class="hljs-keyword">in</span> 34b9b76c7ba5</span><br>Removing intermediate container 34b9b76c7ba5<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 1c1ee23b204e</span><br>Step 14/15 : USER registry<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> Running <span class="hljs-keyword">in</span> 110bc62aca7b</span><br>Removing intermediate container 110bc62aca7b<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> b565e892cca1</span><br>Step 15/15 : CMD [&quot;/data01/registry/tomcat/bin/catalina.sh&quot;,&quot;run&quot;]<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> Running <span class="hljs-keyword">in</span> e0af975e3aa9</span><br>Removing intermediate container e0af975e3aa9<br><span class="hljs-meta"> ---&gt;</span><span class="bash"> 82b43c9ecdda</span><br>Successfully built 82b43c9ecdda<br>Successfully tagged registry:latest<br>=======================================================================<br><br>[root@node02 bin]# docker images<br>REPOSITORY                               TAG                 IMAGE ID            CREATED             SIZE<br>registry                       latest              82b43c9ecdda        3 minutes ago       1.1GB<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到registry已经构建成功了，我们启动一下试试。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@node02 bin]# docker run -it -p 80:8022 --rm registry<br>...<br>2021-06-29 03:14:55.541  INFO 1 --- [      Thread-14] c.n.e.r.PeerAwareInstanceRegistryImpl    : Changing status to UP<br>2021-06-29 03:14:55.591  INFO 1 --- [      Thread-14] e.s.EurekaServerInitializerConfiguration : Started Eureka Server<br>2021-06-29 03:14:55.764  INFO 1 --- [ost-startStop-1] c.s.j.s.i.a.WebApplicationImpl           : Initiating Jersey application, version &#x27;Jersey: 1.19.1 03/11/2016 02:08 PM&#x27;<br>2021-06-29 03:14:55.875  INFO 1 --- [ost-startStop-1] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON encoding codec LegacyJacksonJson<br>2021-06-29 03:14:55.875  INFO 1 --- [ost-startStop-1] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON decoding codec LegacyJacksonJson<br>2021-06-29 03:14:55.876  INFO 1 --- [ost-startStop-1] c.n.d.provider.DiscoveryJerseyProvider   : Using XML encoding codec XStreamXml<br>2021-06-29 03:14:55.876  INFO 1 --- [ost-startStop-1] c.n.d.provider.DiscoveryJerseyProvider   : Using XML decoding codec XStreamXml<br>2021-06-29 03:14:56,842<br>INFO: Starting ProtocolHandler [&quot;http-nio-8022&quot;]<br>2021-06-29 03:14:56,877<br>INFO: Server startup in 21631 ms<br></code></pre></td></tr></table></figure>
+
+<p>没有问题。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@node02 ~]# curl localhost<br>&lt;!doctype html&gt;<br>&lt;!--[if lt IE 7]&gt;      &lt;html class=&quot;no-js lt-ie9 lt-ie8 lt-ie7&quot;&gt; &lt;![endif]--&gt;<br>&lt;!--[if IE 7]&gt;         &lt;html class=&quot;no-js lt-ie9 lt-ie8&quot;&gt; &lt;![endif]--&gt;<br>&lt;!--[if IE 8]&gt;         &lt;html class=&quot;no-js lt-ie9&quot;&gt; &lt;![endif]--&gt;<br>&lt;!--[if gt IE 8]&gt;&lt;!--&gt; &lt;html class=&quot;no-js&quot;&gt; &lt;!--&lt;![endif]--&gt;<br>  &lt;head&gt;<br>    &lt;base href=&quot;/&quot;&gt;<br>    &lt;meta charset=&quot;utf-8&quot;&gt;<br>    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot;&gt;<br>    &lt;title&gt;Eureka&lt;/title&gt;<br>    &lt;meta name=&quot;description&quot; content=&quot;&quot;&gt;<br>    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;<br><br>    &lt;link rel=&quot;stylesheet&quot; href=&quot;eureka/css/wro.css&quot;&gt;<br><br>  &lt;/head&gt;<br><br>  &lt;body id=&quot;one&quot;&gt;<br>&lt;nav class=&quot;navbar navbar-default&quot; role=&quot;navigation&quot;&gt;<br>  &lt;div class=&quot;container&quot;&gt;<br>    &lt;div class=&quot;navbar-header&quot;&gt;<br>      &lt;a class=&quot;navbar-brand&quot; href=&quot;&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/a&gt;<br>      &lt;button type=&quot;button&quot; class=&quot;navbar-toggle&quot; data-toggle=&quot;collapse&quot; data-target=&quot;#bs-example-navbar-collapse-1&quot;&gt;<br>        &lt;span class=&quot;sr-only&quot;&gt;Toggle navigation&lt;/span&gt;<br>...<br><span class="hljs-meta">#</span><span class="bash">node1</span><br>[root@node01 docker]# curl 192.168.60.130<br>&lt;!doctype html&gt;<br>&lt;!--[if lt IE 7]&gt;      &lt;html class=&quot;no-js lt-ie9 lt-ie8 lt-ie7&quot;&gt; &lt;![endif]--&gt;<br>&lt;!--[if IE 7]&gt;         &lt;html class=&quot;no-js lt-ie9 lt-ie8&quot;&gt; &lt;![endif]--&gt;<br>&lt;!--[if IE 8]&gt;         &lt;html class=&quot;no-js lt-ie9&quot;&gt; &lt;![endif]--&gt;<br>&lt;!--[if gt IE 8]&gt;&lt;!--&gt; &lt;html class=&quot;no-js&quot;&gt; &lt;!--&lt;![endif]--&gt;<br>  &lt;head&gt;<br>    &lt;base href=&quot;/&quot;&gt;<br>    &lt;meta charset=&quot;utf-8&quot;&gt;<br>    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot;&gt;<br>    &lt;title&gt;Eureka&lt;/title&gt;<br>    &lt;meta name=&quot;description&quot; content=&quot;&quot;&gt;<br>    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;<br></code></pre></td></tr></table></figure>
+
+<p>本地访问没有问题,其他节点访问也有问题。（注意关闭防火墙）</p>
+<p>好了，到这里，我们已经完成了registry镜像的初步构建，那么只完成了1/3的工作，这个镜像仍然还无法使用。首先还没有推送到docker仓库里面，其他节点是无法拉取的，也无法通过k8s来进行编排部署。</p>
+<p>其次，我们并没有解决registry集群相互注册的问题。</p>
+<p>由于篇幅限制，带着这些问题，我们下一章再见。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%AE%B9%E5%99%A8%E5%8C%96%E6%8A%80%E6%9C%AF/">容器化技术</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AE%B9%E5%99%A8%E5%8C%96/">容器化</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Docker/">Docker</a>
+                    
+                      <a class="hover-with-bg" href="/tags/eureka/">eureka</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/06/04/containerization4-eureka/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">(四)容器化实战--eureka改造</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/06/04/containerization2-k8s/">
+                        <span class="hidden-mobile">(二)容器化实战--K8s探索</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"aABg0z1pmK0PBcdmxgbNq9HH-gzGzoHsz","appKey":"VmLcKlwx0DLrqXB6ubPaCo9B","placeholder":"说点什么","path":"window.location.pathname","avatar":"retro","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":"https://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/","emojiMaps":{"smile":"e3/2018new_weixioa02_org.png","lovely":"09/2018new_keai_org.png"},"enableQQ":true,"requiredFields":[]},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
